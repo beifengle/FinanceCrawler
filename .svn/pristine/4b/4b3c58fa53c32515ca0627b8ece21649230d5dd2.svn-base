@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- Log4j建议只使用四个级别，优先级从高到低分别是 ERROR、WARN、INFO、DEBUG -->  
+<!-- status=debug或info 可以查看log4j的装配过程,关闭用off.monitorInterval单位为秒，可定时重新加载日志文件 -->  
+<configuration status="info" monitorInterval="3600">
+
+	<Properties>
+		<!--日志存放目录 -->
+		<Property name="DCDir">E:/stockwin2dc/logs/caibaolog</Property>
+		<!--工程总日志文件 -->
+		<Property name="RootLogFile">fc.txt</Property>
+		<!--数据库错误异常日志文件 -->
+		<Property name="SQLErrorLogFile">sql-error.txt</Property>
+		<!--采集错误日志文件 -->
+		<Property name="FCErrorLogFile">fc-error.txt</Property>
+		<!--采集的历史财报日志文件 -->
+		<Property name="FCHisLogFile">fc-history.txt</Property>
+		<!--实时采集的财报日志文件 -->
+		<Property name="FCRealTimeLogFile">fc-realtime.txt</Property>
+		<!--采集的返回页面源内容日志文件 -->
+		<Property name="FCHtmlLogFile">fc-html.txt</Property>
+		<!--数据同步到数据中心日志文件 -->
+		<Property name="FCImportLogFile">fc-import.txt</Property>
+		<!--采集的财报内敛性检测日志文件 -->
+		<Property name="FCDiffLogFile">fc-different.txt</Property>
+		<!--采集的股票财报执行流程日志文件 -->
+		<Property name="FCProcessLogFile">fc-process.txt</Property>
+		<!--采财报采集季度末补全执行流程日志文件 -->
+		<Property name="FCCompletionLogFile">fc-completion.txt</Property>
+		<!--采股息全执行流程日志文件 -->
+		<Property name="DividendLogFile">fc-dividend.txt</Property>
+	</Properties>
+	<!--先定义所有的appender -->
+	<appenders>
+		<!--这个输出控制台的配置 -->
+		<Console name="Console" target="SYSTEM_OUT"  follow="false">
+			<!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
+			<ThresholdFilter level="trace" onMatch="ACCEPT" onMismatch="DENY" />
+			<!--这个都知道是输出日志的格式 -->
+			<PatternLayout pattern="%d{MM-dd HH:mm:ss.SSS} %5p %C{1} %L [%t] %M | %m%n" />
+			<!--下面的%logger:可以输出定义的日志名-->
+			<!-- <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger{36} %L %M | %msg%xEx%n" />-->
+		</Console>
+		
+		<!-- 工程总日志文件， 按天第天备份一个日志 -->
+		<RollingFile name="RootLog" fileName="${DCDir}/${RootLogFile}"
+			filePattern="${DCDir}/fc_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %C %L [%t] %M | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="50" />
+		</RollingFile>
+		
+		<!-- 数据库异常日志，按天第天备份一个日志 -->
+		<RollingFile name="SQLErrorLog" fileName="${DCDir}/${SQLErrorLogFile}"
+			filePattern="${DCDir}/sql-error_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %C %L [%t] %M | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="50" />
+		</RollingFile>
+		
+		
+		<!--采集异常日志， 按天第天备份一个日志 -->
+		<RollingFile name="FCErrorLog" fileName="${DCDir}/${FCErrorLogFile}"
+			filePattern="${DCDir}/fc-error_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %C %L [%t] %M | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="50" />
+		</RollingFile>
+		
+				<!--采集的历史财报日志， 按天第天备份一个日志 -->
+		<RollingFile name="FCHisLog" fileName="${DCDir}/${FCHisLogFile}"
+			filePattern="${DCDir}/fc-history_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}  | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="50" />
+		</RollingFile>
+		
+		<!--采集的当期财报日志， 按天第天备份一个日志 -->
+		<RollingFile name="FCRealTimeLog" fileName="${DCDir}/${FCRealTimeLogFile}"
+			filePattern="${DCDir}/fc-realtime_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}   | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="50" />
+		</RollingFile>
+		
+		
+				<!--采集的当期财报日志， 按天第天备份一个日志 -->
+		<RollingFile name="FCHtmlLog" fileName="${DCDir}/${FCHtmlLogFile}"
+			filePattern="${DCDir}/fc-html_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %C %L [%t] %M | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="100" />
+		</RollingFile>
+		
+				<!--采集的当期财报日志， 按天第天备份一个日志 -->
+		<RollingFile name="FCImportLog" fileName="${DCDir}/${FCImportLogFile}"
+			filePattern="${DCDir}/fc-import_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}  | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="400MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="100" />
+		</RollingFile>
+		
+		<!--采集的财报内敛性检测日志， 按天第天备份一个日志 -->
+		<RollingFile name="FCDiffLog" fileName="${DCDir}/${FCDiffLogFile}"
+			filePattern="${DCDir}/fc-different_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}  | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="100" />
+		</RollingFile>
+		
+		<!--每个季度末补缺财报采集执行流程日志， 按天第天备份一个日志 -->
+		<RollingFile name="FCCompletionLog" fileName="${DCDir}/${FCCompletionLogFile}"
+			filePattern="${DCDir}/fc-completion_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}  | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="100" />
+		</RollingFile>
+		
+		<!--采集的财报执行流程日志， 按天第天备份一个日志 -->
+		<RollingFile name="FCProLog" fileName="${DCDir}/${FCProcessLogFile}"
+			filePattern="${DCDir}/fc-process_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}  | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="100" />
+		</RollingFile>
+		
+		<!--采股息全执行流程日志文件 -->
+		<RollingFile name="DividendLogFile" fileName="${DCDir}/${DividendLogFile}"
+			filePattern="${DCDir}/fc-dividend_%d{yyyy-MM-dd}_%i.txt" immediateFlush="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}  | %m%n" />
+			<Policies>
+				<!-- 每24小时更新一次 -->
+				<TimeBasedTriggeringPolicy modulate="true" interval="24" />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<!-- 最多备份20个 -->
+			<DefaultRolloverStrategy max="100" />
+		</RollingFile>
+		
+	</appenders>
+	<!--然后定义logger，只有定义了logger并引入的appender，appender才会生效 -->
+	<loggers>
+		<!--建立一个默认的root的根logger -->
+		<root level="debug">
+			<appender-ref ref="RootLog" />
+			<appender-ref ref="Console" />
+		</root>
+		<!--定义一个子logger :数据库异常-->
+		<Logger name="sqlErrorLoger" additivity="true" level="ALL">  
+            <AppenderRef ref="SQLErrorLog" level="error" />  
+        </Logger>
+        <!--定义一个子logger : 异常-->
+		<Logger name="fcErrorLoger" additivity="TRUE" level="ALL">  
+            <AppenderRef ref="FCErrorLog" level="error" />  
+        </Logger>
+        
+         <!--定义一个子logger : 历史财报-->
+		<Logger name="fcHisLoger" additivity="TRUE" level="ALL">  
+            <AppenderRef ref="FCHisLog" level="info" /> 
+            <AppenderRef ref="FCProLog" level="info" />  
+        </Logger>
+        
+         <!--定义一个子logger : 当期-->
+		<Logger name="fcRealTimeLoger" additivity="TRUE" level="ALL">  
+            <AppenderRef ref="FCRealTimeLog" level="info" />  
+        </Logger>
+        
+         <!--定义一个子logger : 当期-->
+		<Logger name="fcHtmlLoger" additivity="TRUE" level="ALL">  
+            <AppenderRef ref="FCHtmlLog" level="info" />  
+        </Logger>
+         <!--定义一个子logger : 当期-->
+		<Logger name="fcImportLoger" additivity="TRUE" level="ALL">  
+            <AppenderRef ref="FCImportLog" level="info" />  
+        </Logger>
+         <!--定义一个子logger : 当期-->
+		<Logger name="fcDiffLoger" additivity="TRUE" level="ALL">  
+            <AppenderRef ref="FCDiffLog" level="info" />  
+        </Logger>
+        <!--定义一个子logger : 当期-->
+		<Logger name="fcProcessLoger" additivity="TRUE" level="ALL">  
+            <AppenderRef ref="FCProLog" level="info" />  
+        </Logger>
+        <!--定义一个子logger : 当期-->
+		<Logger name="fcCompletionLoger" additivity="TRUE" level="ALL">  
+            <AppenderRef ref="FCCompletionLog" level="info" />  
+        </Logger>
+        <!--采股息全执行流程日志文件 -->
+        <Logger name="fcDividendLoger" additivity="TRUE" level="ALL">  
+            <AppenderRef ref="DividendLogFile" level="info" />  
+        </Logger>
+	</loggers>
+</configuration>
+
+

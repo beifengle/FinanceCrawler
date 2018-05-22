@@ -1,0 +1,1010 @@
+package com.yysoft.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Vector;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+import com.yysoft.entity.Finance;
+import com.yysoft.entity.ReportNotice;
+import com.yysoft.entity.Stock;
+import com.yysoft.entity.StockDividends;
+import com.yysoft.pool.DBManager;
+import com.yysoft.util.Constant;
+import com.yysoft.util.DateUtils;
+import com.yysoft.util.InspectorValues;
+import com.yysoft.util.StringUtils;
+
+public class StockDAO {
+	private static Logger logger = LogManager.getLogger(StockDAO.class); //
+	private static Logger errorlogger = LogManager.getLogger("sqlErrorLoger"); //
+	private static Logger loggerRT = LogManager.getLogger("fcRealTimeLoger"); //
+	private static Logger loggerHis = LogManager.getLogger("fcHisLoger"); //
+	private static Logger loggerDiff = LogManager.getLogger("fcDiffLoger"); //内恰性
+	static DecimalFormat df2 = new DecimalFormat("######0.00"); // 保留两位小数
+	static DecimalFormat df4 = new DecimalFormat("######0.0000"); // 保留四位小数
+	static DecimalFormat df6 = new DecimalFormat("######0.000000"); // 保留6位小数
+
+	public static ArrayList<Stock> getStockCodes() {
+
+		ArrayList<Stock> stocks = new ArrayList<Stock>();
+		Stock stock = new Stock();
+
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			String sql = "select `id`,`name`,`code`,`sectionJRJ`,`sectionJRJCode`,`sectionTecent`,"
+					+ "`sectionTecentCode`,`boardType`,`bourseType`,`concepts`,`city`,"
+					+ "`generalCapital`,`componentType`,`dealType`,`liveType`,announcedDate "
+					+ "from stock_company where   componentType =1 and liveType =1   ";
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				stock = new Stock();
+				stock.setId(rs.getInt(1));
+				stock.setName(rs.getString(2));
+				stock.setCode(rs.getString(3));
+				stock.setComponentType(rs.getInt(13));
+				stock.setAnnouncedDate(rs.getString(16));
+				stocks.add(stock);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			errorlogger.error(e.getMessage(), e);
+		}
+		return stocks;
+	}
+	/**
+	 * Description:查找当前报告期内尚末采集财报的股票
+	 * @param reportDate
+	 * @return
+	 */
+	public static ArrayList<Stock> getStockCodesForGather(String reportDate) {
+
+		ArrayList<Stock> stocks = new ArrayList<Stock>();
+		Stock stock = new Stock();
+
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			String sql = "SELECT id,code,name,componentType from stock_company where componentType=1 and liveType =1 and code not in(SELECT code from financial where ReportDate='"+reportDate+"')";
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				stock = new Stock();
+				stock.setId(rs.getInt(1));
+				stock.setCode(rs.getString(2));
+				stock.setName(rs.getString(3));
+				stock.setComponentType(rs.getInt(4));
+				stocks.add(stock);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			errorlogger.error(e.getMessage(), e);
+		}
+		return stocks;
+	}
+	/**
+	 * 获取需要采集历史财报数据的股票代码 Description:
+	 * 
+	 * @return
+	 */
+	public static Vector<Stock> getNeedHistoryFinanceDataCodes() {
+
+		Vector<Stock> stocks = new Vector<Stock>();
+		Stock stock = new Stock();
+		String insertTable = "financial";
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			String sql = "SELECT `code`, `name` from stock_company a WHERE componentType=1"
+					+ " and liveType =1 and a.`code` not in (SELECT Code from " + insertTable + " GROUP BY Code)";
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				stock = new Stock();
+				stock.setCode(rs.getString(1));
+				stock.setName(rs.getString(2));
+				stocks.add(stock);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			errorlogger.error(e.getMessage(), e);
+		}
+		return stocks;
+	}
+
+	/**
+	 * Description:
+	 * 
+	 * @param finances
+	 * @param isDelBefore在插入前是否先删除，避免重复
+	 */
+	public static void insertDB(ArrayList<Finance> finances, boolean isDelBefore) {
+		Connection con = null;
+		try {
+			con = DBManager.connPoolH.getConnection();
+			Statement stmt = null;
+			String insertTable = "financial";
+			if (isDelBefore == true) {
+				con.setAutoCommit(false);// 更改默认事务方式,以方便 后面的删除操作
+			}
+			stmt = con.createStatement();
+			PreparedStatement ps = con
+					.prepareStatement("insert into " + insertTable + "(Code,Name,ReportDate,PDE,DFP,NIIDFP,PPL,ICR"
+							+ ",IFIB,FinancialExpenses,LTBAOFI,PFBAOFI,NIIPFBAOFI,CROAB,HTMI,NCFFFA,NCFDOFAIAAOLTA"
+							+ ",NIFDOTFA,NCRFDOSAOBU,RefundableDeposits,StatutoryDeposits,BWOFI,NIIDWCBAOFI,INVENTORY"
+							+ ",SUBD,CBD,DITL,DITA,TermDeposits,SAL,SAA,STB,STI,LAATC,CRFBI,NCL,NCA,EFRA,CPFDAPDOIP"
+							+ ",LIABILITIES,LAOE,ProjectMaterials,IFCIFV,CPFPACOFAIAAOLTA,CPFGPASR,FixedAssets,DOFA"
+							+ ",AdminExpenses,TCIATMS,ONPATP,TOEATP,TEATTSOPC,PreciousMetal,NIIRBC,FEG,FERFCOCACE"
+							+ ",MonetaryCapital,BEPS,PCTR,RSOICR,RSOE,RSOCP,CIUPR,TRR,HFTFL,HFTFA,BWCC,NCFFOA"
+							+ ",NetProfit,DevelopmentCosts,AFSFA,NIICBDADTBAOFIS,NIILAATC,TotalProfit,NII,InterestIncome"
+							+ ",InterestExpenses,CurrentLiabilities,CurrentAssets,FAPUATR,ASUATR,ClaimsPaid,NCP,CEATBOTP"
+							+ ",CEATEOTP,OEOC,ONCL,ONCA,OtherLiabilities,OCL,OCA,OOC,OOP,OOI,OtherPayables"
+							+ ",OtherReceivables,OtherAssets,OCI,NIFSTBB,SOPIAAJV,LFDONCA,RPI,MembershipFees,CER"
+							+ ",CustomerDeposits,TreasuryStock,PRFLI,NIFECAMB,DTBAOFI,UPR,ClaimReserves,CBDS,PRFLIRFR"
+							+ ",UPRRFR,CRRFR,LTRFHIRFR,LTHIPR,NIFSUB,PledgeBorrowings,CRFMSIBS,DAPPTMSBS"
+							+ ",BorrowingsReceived,IIR,NCPFAOSAOBU,GOODWILL,MSI,MII,PBA,PUC,OCRCOA,OCRCIA,TRRD,OCRCFA"
+							+ ",PRFOIC,NCRFRB,CRFDOI,IHCACR,NHCACI,HCACI,HCACE,ITE,OwnersEquity,ERSOICR,ENCIICR,NCFFIA"
+							+ ",InvestIncome,InvestmentPro,CPFAOI,SURRENDERS,FCTD,RetainedProfits,IntangibleAssets"
+							+ ",CBDADTBAOFIS,CRBEI,CRFCC,DEPS,CABWCB,NIICACE,NIIPFOFI,BFCB,NIIBFCB,MarketingExpen"
+							+ ",CRFSOGAROS,DFL,DFA,GAAE,GRP,NCLDWOY,NCADWOY,EarnedPremium,SurplusReserves,OperatingCost"
+							+ ",OperatingProfit,OperatingIncome,BTAS,NOI,NOE,TOC,TOI,OPANP,PDPA,DTR,DividendPayable"
+							+ ",InterestPayable,ClaimsPayable,NotesPayable,HCACP,BondsPayable,AccountsPayable,SRP"
+							+ ",TaxesPayable,PremiumReceivables,SubrogationReceivables,RCRR,RFR,DividendReceivable"
+							+ ",InterestReceivable,NotesReceivable,AccountsReceivable,OAGA,PREPAYMENTS"
+							+ ",EstimatedLiabilities,PRIA,AdvanceReceipts,UCP,LTPE,LTL,LTEI,LTB,LTI,LTP,LTR,LTIOB,PDP"
+							+ ",CPFTAS,CPTAFE,IHCACP,CPFOFA,CPFOOA,CPFOIA,OICCP,NIIPL,SpecialReserves,SpecialPayables"
+							+ ",CapitalReserves,ADL,ASSETS,TCI,Quarter,Year,CDate,XJFlag,LRFlag,ZCFlag) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?"
+							+ ",?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?"
+							+ ",?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?"
+							+ ",?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?"
+							+ ",?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?"
+							+ ",?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			for (Finance f : finances) {
+				
+				
+				ps.setString(1, f.getCode());
+				ps.setString(2, f.getName());
+				ps.setString(3, f.getReportDate());
+				ps.setString(4, f.getPDE());
+				ps.setString(5, f.getDFP());
+				ps.setString(6, f.getNIIDFP());
+				ps.setString(7, f.getPPL());
+				ps.setString(8, f.getICR());
+				ps.setString(9, f.getIFIB());
+				ps.setString(10, f.getFinancialExpenses());
+				ps.setString(11, f.getLTBAOFI());
+				ps.setString(12, f.getPFBAOFI());
+				ps.setString(13, f.getNIIPFBAOFI());
+				ps.setString(14, f.getCROAB());
+				ps.setString(15, f.getHTMI());
+				ps.setString(16, f.getNCFFFA());
+				ps.setString(17, f.getNCFDOFAIAAOLTA());
+				ps.setString(18, f.getNIFDOTFA());
+				ps.setString(19, f.getNCRFDOSAOBU());
+				ps.setString(20, f.getRefundableDeposits());
+				ps.setString(21, f.getStatutoryDeposits());
+				ps.setString(22, f.getBWOFI());
+				ps.setString(23, f.getNIIDWCBAOFI());
+				ps.setString(24, f.getINVENTORY());
+				ps.setString(25, f.getSUBD());
+				ps.setString(26, f.getCBD());
+				ps.setString(27, f.getDITL());
+				ps.setString(28, f.getDITA());
+				ps.setString(29, f.getTermDeposits());
+				ps.setString(30, f.getSAL());
+				ps.setString(31, f.getSAA());
+				ps.setString(32, f.getSTB());
+				ps.setString(33, f.getSTI());
+				ps.setString(34, f.getLAATC());
+				ps.setString(35, f.getCRFBI());
+				ps.setString(36, f.getNCL());
+				ps.setString(37, f.getNCA());
+				ps.setString(38, f.getEFRA());
+				ps.setString(39, f.getCPFDAPDOIP());
+				ps.setString(40, f.getLIABILITIES());
+				ps.setString(41, f.getLAOE());
+				ps.setString(42, f.getProjectMaterials());
+				ps.setString(43, f.getIFCIFV());
+				ps.setString(44, f.getCPFPACOFAIAAOLTA());
+				ps.setString(45, f.getCPFGPASR());
+				ps.setString(46, f.getFixedAssets());
+				ps.setString(47, f.getDOFA());
+				ps.setString(48, f.getAdminExpenses());
+				ps.setString(49, f.getTCIATMS());
+				ps.setString(50, f.getONPATP());
+				ps.setString(51, f.getTOEATP());
+				ps.setString(52, f.getTEATTSOPC());
+				ps.setString(53, f.getPreciousMetal());
+				ps.setString(54, f.getNIIRBC());
+				ps.setString(55, f.getFEG());
+				ps.setString(56, f.getFERFCOCACE());
+				ps.setString(57, f.getMonetaryCapital());
+				ps.setString(58, f.getBEPS());
+				ps.setString(59, f.getPCTR());
+				ps.setString(60, f.getRSOICR());
+				ps.setString(61, f.getRSOE());
+				ps.setString(62, f.getRSOCP());
+				ps.setString(63, f.getCIUPR());
+				ps.setString(64, f.getTRR());
+				ps.setString(65, f.getHFTFL());
+				ps.setString(66, f.getHFTFA());
+				ps.setString(67, f.getBWCC());
+				ps.setString(68, f.getNCFFOA());
+				ps.setString(69, f.getNetProfit());
+				ps.setString(70, f.getDevelopmentCosts());
+				ps.setString(71, f.getAFSFA());
+				ps.setString(72, f.getNIICBDADTBAOFIS());
+				ps.setString(73, f.getNIILAATC());
+				ps.setString(74, f.getTotalProfit());
+				ps.setString(75, f.getNII());
+				ps.setString(76, f.getInterestIncome());
+				ps.setString(77, f.getInterestExpenses());
+				ps.setString(78, f.getCurrentLiabilities());
+				ps.setString(79, f.getCurrentAssets());
+				ps.setString(80, f.getFAPUATR());
+				ps.setString(81, f.getASUATR());
+				ps.setString(82, f.getClaimsPaid());
+				ps.setString(83, f.getNCP());
+				ps.setString(84, f.getCEATBOTP());
+				ps.setString(85, f.getCEATEOTP());
+				ps.setString(86, f.getOEOC());
+				ps.setString(87, f.getONCL());
+				ps.setString(88, f.getONCA());
+				ps.setString(89, f.getOtherLiabilities());
+				ps.setString(90, f.getOCL());
+				ps.setString(91, f.getOCA());
+				ps.setString(92, f.getOOC());
+				ps.setString(93, f.getOOP());
+				ps.setString(94, f.getOOI());
+				ps.setString(95, f.getOtherPayables());
+				ps.setString(96, f.getOtherReceivables());
+				ps.setString(97, f.getOtherAssets());
+				ps.setString(98, f.getOCI());
+				ps.setString(99, f.getNIFSTBB());
+				ps.setString(100, f.getSOPIAAJV());
+				ps.setString(101, f.getLFDONCA());
+				ps.setString(102, f.getRPI());
+				ps.setString(103, f.getMembershipFees());
+				ps.setString(104, f.getCER());
+				ps.setString(105, f.getCustomerDeposits());
+				ps.setString(106, f.getTreasuryStock());
+				ps.setString(107, f.getPRFLI());
+				ps.setString(108, f.getNIFECAMB());
+				ps.setString(109, f.getDTBAOFI());
+				ps.setString(110, f.getUPR());
+				ps.setString(111, f.getClaimReserves());
+				ps.setString(112, f.getCBDS());
+				ps.setString(113, f.getPRFLIRFR());
+				ps.setString(114, f.getUPRRFR());
+				ps.setString(115, f.getCRRFR());
+				ps.setString(116, f.getLTRFHIRFR());
+				ps.setString(117, f.getLTHIPR());
+				ps.setString(118, f.getNIFSUB());
+				ps.setString(119, f.getPledgeBorrowings());
+				ps.setString(120, f.getCRFMSIBS());
+				ps.setString(121, f.getDAPPTMSBS());
+				ps.setString(122, f.getBorrowingsReceived());
+				ps.setString(123, f.getIIR());
+				ps.setString(124, f.getNCPFAOSAOBU());
+				ps.setString(125, f.getGOODWILL());
+				ps.setString(126, f.getMSI());
+				ps.setString(127, f.getMII());
+				ps.setString(128, f.getPBA());
+				ps.setString(129, f.getPUC());
+				ps.setString(130, f.getOCRCOA());
+				ps.setString(131, f.getOCRCIA());
+				ps.setString(132, f.getTRRD());
+				ps.setString(133, f.getOCRCFA());
+				ps.setString(134, f.getPRFOIC());
+				ps.setString(135, f.getNCRFRB());
+				ps.setString(136, f.getCRFDOI());
+				ps.setString(137, f.getIHCACR());
+				ps.setString(138, f.getNHCACI());
+				ps.setString(139, f.getHCACI());
+				ps.setString(140, f.getHCACE());
+				ps.setString(141, f.getITE());
+				ps.setString(142, f.getOwnersEquity());
+				ps.setString(143, f.getERSOICR());
+				ps.setString(144, f.getENCIICR());
+				ps.setString(145, f.getNCFFIA());
+				ps.setString(146, f.getInvestIncome());
+				ps.setString(147, f.getInvestmentPro());
+				ps.setString(148, f.getCPFAOI());
+				ps.setString(149, f.getSURRENDERS());
+				ps.setString(150, f.getFCTD());
+				ps.setString(151, f.getRetainedProfits());
+				ps.setString(152, f.getIntangibleAssets());
+				ps.setString(153, f.getCBDADTBAOFIS());
+				ps.setString(154, f.getCRBEI());
+				ps.setString(155, f.getCRFCC());
+				ps.setString(156, f.getDEPS());
+				ps.setString(157, f.getCABWCB());
+				ps.setString(158, f.getNIICACE());
+				ps.setString(159, f.getNIIPFOFI());
+				ps.setString(160, f.getBFCB());
+				ps.setString(161, f.getNIIBFCB());
+				ps.setString(162, f.getMarketingExpen());
+				ps.setString(163, f.getCRFSOGAROS());
+				ps.setString(164, f.getDFL());
+				ps.setString(165, f.getDFA());
+				ps.setString(166, f.getGAAE());
+				ps.setString(167, f.getGRP());
+				ps.setString(168, f.getNCLDWOY());
+				ps.setString(169, f.getNCADWOY());
+				ps.setString(170, f.getEarnedPremium());
+				ps.setString(171, f.getSurplusReserves());
+				ps.setString(172, f.getOperatingCost());
+				ps.setString(173, f.getOperatingProfit());
+				ps.setString(174, f.getOperatingIncome());
+				ps.setString(175, f.getBTAS());
+				ps.setString(176, f.getNOI());
+				ps.setString(177, f.getNOE());
+				ps.setString(178, f.getTOC());
+				ps.setString(179, f.getTOI());
+				ps.setString(180, f.getOPANP());
+				ps.setString(181, f.getPDPA());
+				ps.setString(182, f.getDTR());
+				ps.setString(183, f.getDividendPayable());
+				ps.setString(184, f.getInterestPayable());
+				ps.setString(185, f.getClaimsPayable());
+				ps.setString(186, f.getNotesPayable());
+				ps.setString(187, f.getHCACP());
+				ps.setString(188, f.getBondsPayable());
+				ps.setString(189, f.getAccountsPayable());
+				ps.setString(190, f.getSRP());
+				ps.setString(191, f.getTaxesPayable());
+				ps.setString(192, f.getPremiumReceivables());
+				ps.setString(193, f.getSubrogationReceivables());
+				ps.setString(194, f.getRCRR());
+				ps.setString(195, f.getRFR());
+				ps.setString(196, f.getDividendReceivable());
+				ps.setString(197, f.getInterestReceivable());
+				ps.setString(198, f.getNotesReceivable());
+				ps.setString(199, f.getAccountsReceivable());
+				ps.setString(200, f.getOAGA());
+				ps.setString(201, f.getPREPAYMENTS());
+				ps.setString(202, f.getEstimatedLiabilities());
+				ps.setString(203, f.getPRIA());
+				ps.setString(204, f.getAdvanceReceipts());
+				ps.setString(205, f.getUCP());
+				ps.setString(206, f.getLTPE());
+				ps.setString(207, f.getLTL());
+				ps.setString(208, f.getLTEI());
+				ps.setString(209, f.getLTB());
+				ps.setString(210, f.getLTI());
+				ps.setString(211, f.getLTP());
+				ps.setString(212, f.getLTR());
+				ps.setString(213, f.getLTIOB());
+				ps.setString(214, f.getPDP());
+				ps.setString(215, f.getCPFTAS());
+				ps.setString(216, f.getCPTAFE());
+				ps.setString(217, f.getIHCACP());
+				ps.setString(218, f.getCPFOFA());
+				ps.setString(219, f.getCPFOOA());
+				ps.setString(220, f.getCPFOIA());
+				ps.setString(221, f.getOICCP());
+				ps.setString(222, f.getNIIPL());
+				ps.setString(223, f.getSpecialReserves());
+				ps.setString(224, f.getSpecialPayables());
+				ps.setString(225, f.getCapitalReserves());
+				ps.setString(226, f.getADL());
+				ps.setString(227, f.getASSETS());
+				ps.setString(228, f.getTCI());
+				ps.setString(229, f.getQuarter());
+				ps.setString(230, f.getYear());
+				ps.setString(231, DateUtils.formatDate(new Date()));
+				ps.setInt(232, f.getXJFlag());
+				ps.setInt(233, f.getLRFlag());
+				ps.setInt(234, f.getZCFlag());
+
+				
+				if (isDelBefore == true) {
+					//check
+					InspectorValues.check(f);
+					// del old data
+					stmt.executeUpdate("delete from " + insertTable + " where code='" + f.getCode()
+							+ "' and ReportDate='" + f.getReportDate() + "'");
+					if (ps.executeUpdate() > -1) {
+						loggerRT.info(f.getCode() + ",年份-季度：" + f.getYear() + "-" + f.getQuarter() + ",成功采集结果写入数据库！" );
+					}
+					con.commit();// 提交事务
+
+				} else {
+					//check,内恰性检查
+					InspectorValues.check(f);
+					if (ps.executeUpdate() > -1) {
+						loggerHis.info(f.getCode() + ",年份-季度：" + f.getYear() + "-" + f.getQuarter() + ",成功采集结果写入数据库！" );
+					}
+				}
+			}
+			if (stmt != null) {
+				stmt.close();
+			}
+			ps.close();
+
+		} catch (SQLException e) {
+			errorlogger.error(e.getMessage(), e);
+			try {
+				// 回滚、取消前述操作
+				con.rollback();
+			} catch (Exception e1) {
+				errorlogger.error(e1.getMessage(), e1);
+			}
+		} finally {
+			try {
+				if (con != null) {
+					con.setAutoCommit(true);// 恢复事务的默认提交方式
+					DBManager.connPoolH.returnConnection(con);
+				}
+			} catch (Exception e1) {
+				errorlogger.error(e1.getMessage(), e1);
+			}
+		}
+	}
+
+	public static ArrayList<ReportNotice> getJRJCodesTab() {
+
+		ArrayList<ReportNotice> rns = new ArrayList<ReportNotice>();
+		ReportNotice rn = new ReportNotice();
+
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			String sql = "select `id`,`name`,`code`,`year`,`quarter`,`title`,"
+					+ "`publishDate`,num from stock_financial_gather_monitor";
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				rn = new ReportNotice();
+				rn.setId(rs.getInt(1));
+				rn.setName(rs.getString(2));
+				rn.setCode(rs.getString(3));
+				rn.setYear(rs.getInt(4));
+				rn.setQuarter(rs.getInt(5));
+				rn.setTitle(rs.getString(6));
+				rn.setPublishDate(rs.getString(7));
+				rn.setNum(rs.getInt(8));
+				rns.add(rn);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			errorlogger.error(e.getMessage(), e);
+		}
+		return rns;
+	}
+
+
+
+	public static void updateMonitorPage(HashSet<ReportNotice> succGathers){
+		
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			String updateSQL ="";
+			Statement stmt = con.createStatement();
+			for(ReportNotice rn:succGathers){
+				if(rn.getNum()==0){//第1次采集
+					updateSQL = "insert into stock_financial_gather_monitor" + " (cdate,code,name,year,quarter,title,publishDate,source) values(curdate(),'"
+							+ rn.getCode() + "','" + rn.getName() + "'," + rn.getYear() + "," + rn.getQuarter() + ",'"
+							+ rn.getTitle() + "','" + rn.getPublishDate() + "'," + rn.getSource() +  ")";
+					stmt.executeUpdate(updateSQL);
+				}else{
+					//第二次采集
+				}
+			}
+			//标记为第二次采集
+			updateSQL  = "UPDATE stock_financial_gather_monitor set num=2 where num=1";
+			errorlogger.info(  "updateSQL:"+updateSQL);
+			stmt.executeUpdate(updateSQL);
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			errorlogger.error(e.getMessage(), e);
+		}	
+	}
+	
+	
+	public static ArrayList<Finance> getNewMetaFinance() {
+
+		ArrayList<Finance> fis = new ArrayList<Finance>();
+		Finance fi = new Finance();
+
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			String sql = "select `Code`,`Name`,`Year`,`Quarter`,`ReportDate`,CurrentAssets"
+					+ ",ASSETS,DividendPayable,CurrentLiabilities,LIABILITIES,TEATTSOPC,OwnersEquity"
+					+ ",TOI,OperatingIncome,InvestIncome,OperatingProfit,TotalProfit,NetProfit"
+					+ ",ONPATP,BEPS,DEPS,NCFFOA,CPFDAPDOIP,LTL,OperatingCost,TOC,INVENTORY"
+					+ ",AccountsReceivable,NIICACE,CDate,ID,RetainedProfits,XJFlag,LRFlag,ZCFlag,CapitalReserves from financial where PUBLISH =0  ORDER BY CDate ASC";
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				fi = new Finance();
+				fi.setCode(rs.getString(1));
+				fi.setName(rs.getString(2));
+				fi.setYear(rs.getString(3));
+				fi.setQuarter(rs.getString(4));
+				fi.setReportDate(rs.getString(5));
+				fi.setCurrentAssets(rs.getString(6));
+				fi.setASSETS(rs.getString(7));
+				fi.setDividendPayable(rs.getString(8));
+				fi.setCurrentLiabilities(rs.getString(9));
+				fi.setLIABILITIES(rs.getString(10));
+				fi.setTEATTSOPC(rs.getString(11));
+				fi.setOwnersEquity(rs.getString(12));
+				fi.setTOI(rs.getString(13));
+				fi.setOperatingIncome(rs.getString(14));
+				fi.setInvestIncome(rs.getString(15));
+				fi.setOperatingProfit(rs.getString(16));
+				fi.setTotalProfit(rs.getString(17));
+				fi.setNetProfit(rs.getString(18));
+				fi.setONPATP(rs.getString(19));
+				fi.setBEPS(rs.getString(20));
+				fi.setDEPS(rs.getString(21));
+				fi.setNCFFOA(rs.getString(22));
+				fi.setCPFDAPDOIP(rs.getString(23));
+				fi.setLTL(rs.getString(24));
+				fi.setOperatingCost(rs.getString(25));
+				fi.setTOC(rs.getString(26));
+				fi.setINVENTORY(rs.getString(27));
+				fi.setAccountsReceivable(rs.getString(28));
+				fi.setNIICACE(rs.getString(29));
+				fi.setCDate(rs.getString(30));
+				fi.setID(rs.getInt(31));
+				fi.setRetainedProfits(rs.getString(32));
+				fi.setXJFlag(rs.getInt(33));
+				fi.setLRFlag(rs.getInt(34));
+				fi.setZCFlag(rs.getInt(35));
+				fi.setCapitalReserves(rs.getString(36));
+				fis.add(fi);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			errorlogger.error(e.getMessage(), e);
+		}
+		return fis;
+	}
+
+	/**
+	 * Description:
+	 * @param fi
+	 * @return 0-插入失败，1-成功插入新数据。2-成功插入并替换旧记录
+	 */
+	public static int importToDCFinance(Finance fi) {
+		Statement st = null;
+		Connection con = null;
+		String table ="stock_financial";
+		int flag = 0;
+		
+		
+		//06.03.11wilson规定，营收和营总收，那个值最大就划归为营总收的最终值，计算时取营总收的值
+		if(StringUtils.getDouble6(fi.getOperatingIncome())>StringUtils.getDouble6(fi.getTOI())){
+			fi.setTOI(fi.getOperatingIncome());
+		}
+		try {
+			con = DBManager.connPoolH.getConnection();
+			con.setAutoCommit(false);//更改默认事务方式
+			st = con.createStatement();
+			String delSQL = "delete from " +table +" where code='" + fi.getCode() + "' and reportDate='" + fi.getReportDate() +"'" ;
+			String sql = "insert into " + table 
+					+ "(`Code`,`Name`,`Year`,`Quarter`,`ReportDate`,`AR`,`BEPS`"
+					+ ",CapitalReserves,`CurrentAssets`,`CurrentDebt`,`CPFDAPDOIP`,`DEPS`"
+					+ ",`DividendPayable`,`Inventory`,`LongDebt`,`NCA`,`NCFFOA`,`NCFFIA`"
+					+ ",`NCFFFA`,`NIICACE`,`NP`,`ONPATP`"
+					+ ",`OperatingProfit`,`OperatingCost`,`OperatingIncome`,`OwnersEquity`"
+					+ ",`RP`,`TotalAssets`,`TotalDebt`,TEATTSOPC,TOI,TotalProfit,TOC,Yield,XJFlag,LRFlag,ZCFlag) values('" + fi.getCode() + "','" + fi.getName() + "',"
+					+ Integer.valueOf(fi.getYear()) + "," + Integer.valueOf(fi.getQuarter()) + ",'" + fi.getReportDate() + "',"
+					+ StringUtils.getDouble6(fi.getAccountsReceivable()) + "," + StringUtils.getDouble6(fi.getBEPS())  + ","
+					+ StringUtils.getDouble6(fi.getCapitalReserves()) + "," 
+					+ StringUtils.getDouble6(fi.getCurrentAssets()) + "," + StringUtils.getDouble6(fi.getCurrentLiabilities()) + ","
+					+ StringUtils.getDouble6(fi.getCPFDAPDOIP()) + "," + StringUtils.getDouble6(fi.getDEPS()) + ","
+					+ StringUtils.getDouble6(fi.getDividendPayable()) + "," + StringUtils.getDouble6(fi.getINVENTORY()) + "," 
+					+ StringUtils.getDouble6(fi.getLTL()) + "," + StringUtils.getDouble6(fi.getNCA()) + ","
+					+ StringUtils.getDouble6(fi.getNCFFOA()) + "," + StringUtils.getDouble6(fi.getNCFFIA()) + ","
+					+ StringUtils.getDouble6(fi.getNCFFFA()) + "," + StringUtils.getDouble6(fi.getNIICACE()) + "," 
+					+ StringUtils.getDouble6(fi.getNetProfit()) + "," + StringUtils.getDouble6(fi.getONPATP()) + "," 
+					+ StringUtils.getDouble6(fi.getOperatingProfit()) + "," + StringUtils.getDouble6(fi.getOperatingCost()) + ","
+					+ StringUtils.getDouble6(fi.getOperatingIncome()) + "," + StringUtils.getDouble6(fi.getOwnersEquity()) + "," 
+					+ StringUtils.getDouble6(fi.getRetainedProfits()) + "," + StringUtils.getDouble6(fi.getASSETS()) + ","
+					+ StringUtils.getDouble6(fi.getLIABILITIES()) + "," + StringUtils.getDouble6(fi.getTEATTSOPC()) + ","
+					+ StringUtils.getDouble6(fi.getTOI()) + "," + StringUtils.getDouble6(fi.getTotalProfit()) + "," 
+					+ StringUtils.getDouble6(fi.getTOC())  + "," + StringUtils.getDouble6(fi.getInvestIncome()) + "," 
+					+ Integer.valueOf(fi.getXJFlag()) + "," + Integer.valueOf(fi.getLRFlag()) + ","+ Integer.valueOf(fi.getZCFlag()) +  ")";
+			flag += st.executeUpdate(delSQL);
+			flag += st.executeUpdate(sql);
+			
+			con.commit();//提交事务
+			con.setAutoCommit(true);// 恢复事务的默认提交方式 
+			
+			if (st != null) {
+				st.close();
+			}
+		} catch (MySQLIntegrityConstraintViolationException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			DBManager.connPoolH.returnConnection(con);
+		}
+		return flag;
+	}
+	
+	
+	public static void updatePublishFinance(int id) {
+		Statement st = null;
+		Connection con = null;
+		try {
+			con = DBManager.connPoolH.getConnection();
+			st = con.createStatement();
+			String sql = "update financial set PUBLISH=1 where ID=" + id;
+			 st.executeUpdate(sql);
+
+			if (st != null) {
+				st.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBManager.connPoolH.returnConnection(con);
+		}
+	}
+	
+ 
+	
+	/**
+	 * Description:stock_financial_gather_basic 需要重采的股票（num=1）
+	 *
+	 */
+	public static HashSet<ReportNotice> reGather() {
+		HashSet<ReportNotice> oldCodes = new HashSet<ReportNotice>();
+		ReportNotice rn = null;
+		Statement st = null;
+		Connection con = null;
+		try {
+			con = DBManager.connPoolH.getConnection();
+			st = con.createStatement();
+			String sql = "SELECT id,cdate,`code`,`name`,`year`,`quarter`,title,publishDate,num from stock_financial_gather_monitor where  num =1 and  cdate>=(SELECT MAX(cdate) from stock_financial_gather_monitor)" ;
+			ResultSet rs = st.executeQuery(sql);
+			while(rs.next()){
+				rn = new ReportNotice();
+				rn.setId(rs.getInt(1));
+				rn.setCdate(rs.getString(2));
+				rn.setCode(rs.getString(3));
+				rn.setName(rs.getString(4));
+				rn.setYear(rs.getInt(5));
+				rn.setQuarter(rs.getInt(6));
+				rn.setTitle(rs.getString(7));
+				rn.setPublishDate(rs.getString(8));
+				rn.setNum(rs.getInt(9));
+				oldCodes.add(rn);
+			}
+			if (st != null) {
+				st.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBManager.connPoolH.returnConnection(con);
+		}
+		return oldCodes;
+	}
+	
+	/**
+	 * Description:更新表stock_compnay中股票简写和首字母缩写
+	 *
+	 */
+	public static void updateAcronym(String name,String acronym,String code) {
+		Statement st = null;
+		Connection con = null;
+		String table1 = Constant.DCDB+".stock_company";
+		String table2 = Constant.WEBDB+".stock_company";
+		try {
+			con = DBManager.connPoolH.getConnection();
+			st = con.createStatement();
+			String sql = "update " + table1 + " set name='" + name + "',acronym='" + acronym +"' where componentType=1 and code='" +code +"'" ;
+			
+			st.executeUpdate(sql);
+			sql = "update " + table2 + " set name='" + name + "',acronym='" + acronym +"' where componentType=1 and code='" +code +"'" ;
+			st.executeUpdate(sql);
+			if (st != null) {
+				st.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBManager.connPoolH.returnConnection(con);
+		}
+	}
+	/**
+	 * stock_dividends中的所有股票数据
+	 * 
+	 * @author bxsun
+	 */
+	public static ArrayList<StockDividends> getStockDividendsCode() {
+
+		ArrayList<StockDividends> stocks = new ArrayList<StockDividends>();
+		StockDividends stock = new StockDividends();
+		StringBuffer sb = new StringBuffer();
+
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			/*String sql = "select a.`id`,a.`name`,a.`code`,a.`year`,a.`quarter`,a.`recordDate`,a.`dividendPerShare`,"
+					+ "a.`dividendPlan`,a.`dividendPlanFlag`,a.`dividendPlanAbstract`,a.`dividendPlanIncrease`,"
+					+ "a.`stock_total`,a.`reportDate`,a.announDate," 
+					+ " from stock_dividends a,stock_company b where a.`code`=b.`code` and b.componentType=1 and a.reportDate='2015-12-31'";*/
+			String sql="select `id`,`name`,`code`,`year`,`quarter`,`recordDate`,`dividendPerShare`,"
+					+ "`dividendPlan`,`dividendPlanFlag`,`dividendPlanAbstract`,`dividendPlanIncrease`,"
+					+ "`stock_total`,`reportDate`,announDate from stock_dividends where reportDate='2015-12-31' or reportDate='2016-06-30'";
+			Statement stmt = con.createStatement();
+			sb.append(sql);
+
+			sql = sb.toString();
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				stock = new StockDividends();
+				stock.setName(rs.getString(2));
+				stock.setCode(rs.getString(3));
+				stock.setYear(rs.getInt(4));
+				stock.setQuarter(rs.getInt(5));
+				stock.setRecordDate(rs.getString(6));
+				stock.setDividendPerShare(rs.getDouble(7));
+				stock.setDividendPlan(rs.getString(8));
+				stock.setDividendPlanFlag(rs.getInt(9));
+				stock.setDividendPlanAbstract(rs.getString(10));
+				stock.setDividendPlanIncrease(rs.getString(11));
+				stock.setStock_total(rs.getDouble(12));
+				stock.setReportDate(rs.getString(13));
+				stock.setAnnounDate(rs.getString(14));
+				stocks.add(stock);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return stocks;
+	}
+	
+	/**
+	 * 获取同期中,stock_dividends中的所有股票数据
+	 * 
+	 * @author bxsun
+	 */
+	public static ArrayList<StockDividends> getStockDividendsCode(int year, int quarter) {
+
+		ArrayList<StockDividends> stocks = new ArrayList<StockDividends>();
+		StockDividends stock = new StockDividends();
+		StringBuffer sb = new StringBuffer();
+
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			String sql = "select `id`,`name`,`code`,`year`,`quarter`,`recordDate`,`dividendPerShare`,`dividendPlan`,`dividendPlanFlag` from stock_dividends where year="
+					+ year + " and quarter=" + quarter + " ";
+			Statement stmt = con.createStatement();
+			sb.append(sql);
+
+			sql = sb.toString();
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				stock = new StockDividends();
+				stock.setName(rs.getString(2));
+				stock.setCode(rs.getString(3));
+				stock.setRecordDate(rs.getString(6));
+				stock.setDividendPerShare(rs.getDouble(7));
+				stocks.add(stock);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return stocks;
+	}
+	
+	/**
+	 * 查询stock_capital_changetime表中对应code和date按降序排列的股本总数
+	 * 
+	 */
+	public static double getStockTotal(String code, String date) {
+		double stockTotal = 0;
+		StringBuffer sb = new StringBuffer();
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			String sql = "select stock_total from stock_capital_changetime where code='" + code + "' and date<='" + date
+					+ "' and stock_total>0 ORDER BY date DESC LIMIT 1";
+			Statement stmt = con.createStatement();
+			sb.append(sql);
+			sql = sb.toString();
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				stockTotal = rs.getDouble(1);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return stockTotal;
+	}
+
+	/**
+	 * 查询stock_dividends表中对应code和date的股本总数
+	 * 
+	 */
+	public static double getStockTotal2(String code, String date) {
+		double stockTotal = 0;
+		StringBuffer sb = new StringBuffer();
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			String sql = "select stock_total from stock_dividends where code='" + code + "' and reportDate='" + date
+					+ "'";
+			Statement stmt = con.createStatement();
+			sb.append(sql);
+			sql = sb.toString();
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				stockTotal = rs.getDouble(1);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return stockTotal;
+	}
+	/**
+	 * Description:获取股票
+	 * 
+	 * @param boardType
+	 *            0为主板,1为创业板
+	 * @param componentType
+	 *            1-个股，0-大盘指数
+	 * @param dealType
+	 *            1-停牌，0-已复牌，正常交易
+	 * @param liveType
+	 *            1-上市，0-退市
+	 * @param bourseType
+	 *            0-深市,1-沪市
+	 * @return
+	 */
+	public static HashSet<Stock> getStockCode(Integer boardType, Integer componentType, Integer dealType,
+			Integer liveType, Integer bourseType) {
+
+		HashSet<Stock> stocks = new HashSet<Stock>();
+		Stock stock = new Stock();
+		StringBuffer sb = new StringBuffer();
+
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			String sql = "select `id`,`name`,`code`,`sectionJRJ`,`sectionJRJCode`,`sectionTecent`,`sectionTecentCode`,`boardType`,`bourseType`,`concepts`,`city`,`generalCapital`,`componentType`,`dealType`,`liveType`,`announcedDate` from stock_company where 1=1 ";
+			Statement stmt = con.createStatement();
+			sb.append(sql);
+			if (boardType != null) {
+				sb.append(" and boardType =" + boardType);
+			}
+			if (componentType != null) {
+				sb.append(" and componentType =" + componentType);
+			}
+			if (dealType != null) {
+				sb.append(" and dealType =" + dealType);
+			}
+			if (liveType != null) {
+				sb.append(" and liveType =" + liveType);
+			}
+			if (bourseType != null) {
+				sb.append(" and bourseType =" + bourseType);
+			}
+			sql = sb.toString();
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				stock = new Stock();
+				stock.setName(rs.getString(2));
+				stock.setCode(rs.getString(3));
+				stock.setComponentType(rs.getInt(13));
+				stock.setAnnouncedDate(rs.getString(16));
+				stocks.add(stock);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return stocks;
+	}
+	/**
+	 * Description:获取个股的所有上市或退市公司信息
+	 * 
+	 * @param componentType
+	 *            1-个股，0-大盘指数
+	 * @return
+	 */
+	public static HashSet<Stock> getStockCode(Integer componentType, Integer liveType) {
+		return getStockCode(null, componentType, null, liveType, null);
+	}
+
+	/**
+	 * 执行sql
+	 * 
+	 * @return
+	 */
+	public static void runSql(String sql) {
+
+		try {
+			Connection con = DBManager.connPoolH.getConnection();
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate(sql);
+			stmt.close();
+			DBManager.connPoolH.returnConnection(con);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	//根据股票代码和报告期获取
+		public static StockDividends getDividend(String code,String reportDate){
+			StockDividends stockDivi=null;
+			StringBuffer sb = new StringBuffer();
+			try {
+				Connection con = DBManager.connPoolH.getConnection();
+				String sql = "select dividendPerShare,recordDate from stock_dividends where code='"+code+"' and reportDate='"+reportDate+"'";
+				Statement stmt = con.createStatement();
+				sb.append(sql);
+				sql = sb.toString();
+				ResultSet rs = stmt.executeQuery(sql);
+				while (rs.next()) {
+					stockDivi=new StockDividends();
+					stockDivi.setDividendPerShare(rs.getDouble(1));
+					stockDivi.setRecordDate(rs.getString(2));
+				}
+				rs.close();
+				stmt.close();
+				DBManager.connPoolH.returnConnection(con);
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return stockDivi;
+		} 
+
+}

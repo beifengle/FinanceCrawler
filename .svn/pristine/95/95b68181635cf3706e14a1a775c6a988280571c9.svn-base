@@ -1,0 +1,1664 @@
+package com.yysoft.entity;
+
+/**
+ * 功能描述：财报对象
+ * @author Huanyan.Lu
+ * @date:2016年5月10日
+ * @time:下午12:00:04
+ * @version:1.0
+ */
+public class Finance {
+	private int ID;//
+	private String  Code;
+	private String  Name;
+	private String  CDate;//采集时间
+	private String  ReportDate;//报告期
+	private String  Year;//
+	private String 	Quarter;//
+	private String 	PDE;//	保单红利支出
+	private String 	DFP;//	保户储金及投资款
+	private String 	NIIDFP;//	保户储金及投资款净增加额
+	private String 	PPL;//	保户质押贷款净额
+	private String 	ICR;//	保险合同准备金
+	private String 	IFIB;//	保险业务收入
+	private String 	FinancialExpenses;//	财务费用
+	private String 	LTBAOFI;//	拆出资金净额
+	private String 	PFBAOFI;//	拆入资金
+	private String 	NIIPFBAOFI;//	拆入资金净增加额
+	private String 	CROAB;//	偿还债务支付的现金
+	private String 	HTMI;//	持有至到期投资净额
+	private String 	NCFFFA;//	筹资活动产生的现金流量净额
+	private String 	NCFDOFAIAAOLTA;//	处置固定资产、无形资产和其他长期资产收回的现金净额
+	private String 	NIFDOTFA;//	处置交易性金融资产净增加额
+	private String 	NCRFDOSAOBU;//	处置子公司及其他营业单位收到的现金净额
+	private String 	RefundableDeposits;//	存出保证金
+	private String 	StatutoryDeposits;//	存出资本保证金
+	private String 	BWOFI;//	存放同业款项
+	private String 	NIIDWCBAOFI;//	存放中央银行和同业款项净增加额
+	private String 	INVENTORY;//	存货净额
+	private String 	SUBD;//	代理承销证券款
+	private String 	CBD;//	代理买卖证券款
+	private String 	DITL;//	递延所得税负债
+	private String 	DITA;//	递延所得税资产
+	private String 	TermDeposits;//	定期存款
+	private String 	SAL;//	独立账户负债
+	private String 	SAA;//	独立账户资产
+	private String 	STB;//	短期借款
+	private String 	STI;//	短期投资净额
+	private String 	LAATC;//	发放贷款及垫款净额
+	private String 	CRFBI;//	发行债券收到的现金
+	private String 	NCL;//	非流动负债合计
+	private String 	NCA;//	非流动资产合计
+	private String 	EFRA;//	分保费用
+	private String 	CPFDAPDOIP;//	分配股利、利润或偿付利息支付的现金
+	private String 	LIABILITIES;//	负债合计
+	private String 	LAOE;//	负债及所有者权益总计
+	private String 	ProjectMaterials;//	工程物资
+	private String 	IFCIFV;//	公允价值变动收益
+	private String 	CPFPACOFAIAAOLTA;//	购建固定资产、无形资产和其他长期资产支付的现金
+	private String 	CPFGPASR;//	购买商品、接受劳务支付的现金
+	private String 	FixedAssets;//	固定资产净额
+	private String 	DOFA;//	固定资产清理
+	private String 	AdminExpenses;//	管理费用
+	private String 	TCIATMS;//	归属少数股东的综合收益
+	private String 	ONPATP;//	归属于母公司所有者的净利润
+	private String 	TOEATP;//	归属于母公司所有者的综合收益
+	private String 	TEATTSOPC;//	归属于母公司所有者权益合计
+	private String 	PreciousMetal;//	贵金属
+	private String 	NIIRBC;//	回购业务资金净增加额
+	private String 	FEG;//	汇兑收益
+	private String 	FERFCOCACE;//	汇率变动对现金及现金等价物的影响
+	private String 	MonetaryCapital;//	货币资金
+	private String 	BEPS;//	基本每股收益
+	private String 	PCTR;//	减：分出保费
+	private String 	RSOICR;//	减：摊回保险责任准备金
+	private String 	RSOE;//	减：摊回分保费用
+	private String 	RSOCP;//	减：摊回赔付支出
+	private String 	CIUPR;//	减：提取未到期责任准备金
+	private String 	TRR;//	交易风险准备
+	private String 	HFTFL;//	交易性金融负债
+	private String 	HFTFA;//	交易性金融资产
+	private String 	BWCC;//	结算备付金
+	private String 	NCFFOA;//	经营活动产生的现金流量净额
+	private String 	NetProfit;//	净利润
+	private String 	DevelopmentCosts;//	开发支出
+	private String 	AFSFA;//	可供出售金融资产净额
+	private String 	NIICBDADTBAOFIS;//	客户存款和同业存放款项净增加额
+	private String 	NIILAATC;//	客户贷款及垫款净增加额
+	private String 	TotalProfit;//	利润总额
+	private String 	NII;//	利息净收入
+	private String 	InterestIncome;//	利息收入
+	private String 	InterestExpenses;//	利息支出
+	private String 	CurrentLiabilities;//	流动负债合计
+	private String 	CurrentAssets;//	流动资产合计
+	private String 	FAPUATR;//	买入返售金融资产净额
+	private String 	ASUATR;//	卖出回购金融资产款
+	private String 	ClaimsPaid;//	赔付支出
+	private String 	NCP;//	赔付支出净额
+	private String 	CEATBOTP;//	期初现金及现金等价物余额
+	private String 	CEATEOTP;//	期末现金及现金等价物余额
+	private String 	OEOC;//	其他对现金的影响
+	private String 	ONCL;//	其他非流动负债
+	private String 	ONCA;//	其他非流动资产
+	private String 	OtherLiabilities;//	其他负债
+	private String 	OCL;//	其他流动负债
+	private String 	OCA;//	其他流动资产
+	private String 	OOC;//	其他业务成本
+	private String 	OOP;//	其他业务利润
+	private String 	OOI;//	其他业务收入
+	private String 	OtherPayables;//	其他应付款
+	private String 	OtherReceivables;//	其他应收款净额
+	private String 	OtherAssets;//	其他资产
+	private String 	OCI;//	其他综合收益(损失)
+	private String 	NIFSTBB;//	其中：代理买卖证券业务净收入
+	private String 	SOPIAAJV;//	其中：对联营企业和合营企业的投资收益
+	private String 	LFDONCA;//	其中：非流动资产处置净损益
+	private String 	RPI;//	其中：分保费收入
+	private String 	MembershipFees;//	其中:交易席位费
+	private String 	CER;//	其中：客户备付金
+	private String 	CustomerDeposits;//	其中:客户资金存款
+	private String 	TreasuryStock;//	其中：库存股
+	private String 	PRFLI;//	其中:寿险责任准备金
+	private String 	NIFECAMB;//	其中：受托客户资产管理业务净收入
+	private String 	DTBAOFI;//	其中：同业及其他金融机构存放款项
+	private String 	UPR;//	其中:未到期责任准备金
+	private String 	ClaimReserves;//	其中:未决赔款准备金
+	private String 	CBDS;//	其中：吸收存款
+	private String 	PRFLIRFR;//	其中:应收分保寿险责任准备金净额
+	private String 	UPRRFR;//	其中:应收分保未到期责任准备金净额
+	private String 	CRRFR;//	其中:应收分保未决赔款准备金净额
+	private String 	LTRFHIRFR;//	其中:应收分保长期健康险责任准备金净额
+	private String 	LTHIPR;//	其中:长期健康险责任准备金
+	private String 	NIFSUB;//	其中:证券承销业务净收入
+	private String 	PledgeBorrowings;//	其中:质押借款
+	private String 	CRFMSIBS;//	其中：子公司吸收少数股东投资收到的现金
+	private String 	DAPPTMSBS;//	其中：子公司支付给少数股东的股利、利润
+	private String 	BorrowingsReceived;//	取得借款收到的现金
+	private String 	IIR;//	取得投资收益收到的现金
+	private String 	NCPFAOSAOBU;//	取得子公司及其他营业单位支付的现金净额
+	private String 	GOODWILL;//	商誉净额
+	private String 	MSI;//	少数股东权益
+	private String 	MII;//	少数股东损益
+	private String 	PBA;//	生产性生物资产净额
+	private String 	PUC;//	实收资本(或股本)
+	private String 	OCRCOA;//	收到其他与经营活动有关的现金
+	private String 	OCRCIA;//	收到其他与投资活动有关的现金
+	private String 	TRRD;//	收到的税费返还
+	private String 	OCRCFA;//	收到其他与筹资活动有关的现金
+	private String 	PRFOIC;//	收到原保险合同保费取得的现金
+	private String 	NCRFRB;//	收到再保险业务现金净额
+	private String 	CRFDOI;//	收回投资收到的现金
+	private String 	IHCACR;//	收取利息、手续费及佣金的现金
+	private String 	NHCACI;//	手续费及佣金净收入
+	private String 	HCACI;//	手续费及佣金收入
+	private String 	HCACE;//	手续费及佣金支出
+	private String 	ITE;//	所得税费用
+	private String 	OwnersEquity;//	所有者权益合计
+	private String 	ERSOICR;//	提取保险责任准备金
+	private String 	ENCIICR;//	提取保险责任准备金净额
+	private String 	NCFFIA;//	投资活动产生的现金流量净额
+	private String 	InvestIncome;//	投资收益
+	private String 	InvestmentPro;//	投资性房地产净额
+	private String 	CPFAOI;//	投资支付的现金
+	private String 	SURRENDERS;//	退保金
+	private String 	FCTD;//	外币报表折算差额
+	private String 	RetainedProfits;//	未分配利润
+	private String 	IntangibleAssets;//	无形资产净额
+	private String 	CBDADTBAOFIS;//	吸收存款及同业存放
+	private String 	CRBEI;//	吸收权益性投资收到的现金
+	private String 	CRFCC;//	吸收投资收到的现金
+	private String 	DEPS;//	稀释每股收益
+	private String 	CABWCB;//	现金及存放中央银行款项
+	private String 	NIICACE;//	现金及现金等价物净增加额
+	private String 	NIIPFOFI;//	向其他金融机构拆入资金净增加额
+	private String 	BFCB;//	向中央银行借款
+	private String 	NIIBFCB;//	向中央银行借款净增加额
+	private String 	MarketingExpen;//	销售费用
+	private String 	CRFSOGAROS;//	销售商品、提供劳务收到的现金
+	private String 	DFL;//	衍生金融负债
+	private String 	DFA;//	衍生金融资产
+	private String 	GAAE;//	业务及管理费
+	private String 	GRP;//	一般风险准备
+	private String 	NCLDWOY;//	一年内到期的非流动负债
+	private String 	NCADWOY;//	一年内到期的非流动资产
+	private String 	EarnedPremium;//	已赚保费
+	private String 	SurplusReserves;//	盈余公积金
+	private String 	OperatingCost;//	营业成本
+	private String 	OperatingProfit;//	营业利润
+	private String 	OperatingIncome;//	营业收入
+	private String 	BTAS;//	营业税金及附加
+	private String 	NOI;//	营业外收入
+	private String 	NOE;//	营业外支出
+	private String 	TOC;//	营业总成本
+	private String 	TOI;//	营业总收入
+	private String 	OPANP;//	影响净利润的其他项目
+	private String 	PDPA;//	应付保单红利
+	private String 	DTR;//	应付分保账款
+	private String 	DividendPayable;//	应付股利
+	private String 	InterestPayable;//	应付利息
+	private String 	ClaimsPayable;//	应付赔付款
+	private String 	NotesPayable;//	应付票据
+	private String 	HCACP;//	应付手续费及佣金
+	private String 	BondsPayable;//	应付债券
+	private String 	AccountsPayable;//	应付账款
+	private String 	SRP;//	应付职工薪酬
+	private String 	TaxesPayable;//	应交税费
+	private String 	PremiumReceivables;//	应收保费净额
+	private String 	SubrogationReceivables;//	应收代位追偿款净额
+	private String 	RCRR;//	应收分保合同准备金净额
+	private String 	RFR;//	应收分保账款净额
+	private String 	DividendReceivable;//	应收股利净额
+	private String 	InterestReceivable;//	应收利息净额
+	private String 	NotesReceivable;//	应收票据净额
+	private String 	AccountsReceivable;//	应收账款净额
+	private String 	OAGA;//	油气资产净额
+	private String 	PREPAYMENTS;//	预付款项净额
+	private String 	EstimatedLiabilities;//	预计负债
+	private String 	PRIA;//	预收保费
+	private String 	AdvanceReceipts;//	预付账款
+	private String 	UCP;//	在建工程净额
+	private String 	LTPE;//	长期待摊费用
+	private String 	LTL;//	长期负债合计
+	private String 	LTEI;//	长期股权投资净额
+	private String 	LTB;//	长期借款
+	private String 	LTI;//	长期投资净额
+	private String 	LTP;//	长期应付款
+	private String 	LTR;//	长期应收款净额
+	private String 	LTIOB;//	长期债权投资净额
+	private String 	PDP;//	支付保单红利的现金
+	private String 	CPFTAS;//	支付的各项税费
+	private String 	CPTAFE;//	支付给职工以及为职工支付的现金
+	private String 	IHCACP;//	支付利息、手续费及佣金的现金
+	private String 	CPFOFA;//	支付其他与筹资活动有关的现金
+	private String 	CPFOOA;//	支付其他与经营活动有关的现金
+	private String 	CPFOIA;//	支付其他与投资活动有关的现金
+	private String 	OICCP;//	支付原保险合同赔付款项的现金
+	private String 	NIIPL;//	质押贷款净增加额
+	private String 	SpecialReserves;//	专项储备
+	private String 	SpecialPayables;//	专项应付款
+	private String 	CapitalReserves;//	资本公积金
+	private String 	ADL;//	资产减值损失
+	private String 	ASSETS;//	资产总计
+	private String 	TCI;//	综合收益总额
+	private int ZCFlag;//资产负债表采集来源：0-没有采集到，1-来于金融街，2-来于腾讯
+	private int LRFlag;//利润分配表采集来源：0-没有采集到，1-来于金融街，2-来于腾讯
+	private int XJFlag;//现金流量表采集来源：0-没有采集到，1-来于金融街，2-来于腾讯
+	private int num;//采集次数
+	public int getID() {
+		return ID;
+	}
+	public void setID(int iD) {
+		ID = iD;
+	}
+	public String getCode() {
+		return Code;
+	}
+	public void setCode(String code) {
+		Code = code;
+	}
+	public String getName() {
+		return Name;
+	}
+	public String getReportDate() {
+		return ReportDate;
+	}
+	public void setReportDate(String reportDate) {
+		ReportDate = reportDate;
+	}
+	public void setName(String name) {
+		Name = name;
+	}
+	public String getPDE() {
+		return PDE;
+	}
+	public void setPDE(String pDE) {
+		PDE = pDE;
+	}
+	public String getDFP() {
+		return DFP;
+	}
+	public void setDFP(String dFP) {
+		DFP = dFP;
+	}
+	public String getNIIDFP() {
+		return NIIDFP;
+	}
+	public void setNIIDFP(String nIIDFP) {
+		NIIDFP = nIIDFP;
+	}
+	public String getPPL() {
+		return PPL;
+	}
+	public void setPPL(String pPL) {
+		PPL = pPL;
+	}
+	public String getICR() {
+		return ICR;
+	}
+	public void setICR(String iCR) {
+		ICR = iCR;
+	}
+	public String getIFIB() {
+		return IFIB;
+	}
+	public void setIFIB(String iFIB) {
+		IFIB = iFIB;
+	}
+	public String getFinancialExpenses() {
+		return FinancialExpenses;
+	}
+	public void setFinancialExpenses(String financialExpenses) {
+		FinancialExpenses = financialExpenses;
+	}
+	public String getLTBAOFI() {
+		return LTBAOFI;
+	}
+	public void setLTBAOFI(String lTBAOFI) {
+		LTBAOFI = lTBAOFI;
+	}
+	public String getPFBAOFI() {
+		return PFBAOFI;
+	}
+	public void setPFBAOFI(String pFBAOFI) {
+		PFBAOFI = pFBAOFI;
+	}
+	public String getNIIPFBAOFI() {
+		return NIIPFBAOFI;
+	}
+	public void setNIIPFBAOFI(String nIIPFBAOFI) {
+		NIIPFBAOFI = nIIPFBAOFI;
+	}
+	public String getCROAB() {
+		return CROAB;
+	}
+	public void setCROAB(String cROAB) {
+		CROAB = cROAB;
+	}
+	public String getHTMI() {
+		return HTMI;
+	}
+	public void setHTMI(String hTMI) {
+		HTMI = hTMI;
+	}
+	public String getNCFFFA() {
+		return NCFFFA;
+	}
+	public void setNCFFFA(String nCFFFA) {
+		NCFFFA = nCFFFA;
+	}
+	public String getNCFDOFAIAAOLTA() {
+		return NCFDOFAIAAOLTA;
+	}
+	public void setNCFDOFAIAAOLTA(String nCFDOFAIAAOLTA) {
+		NCFDOFAIAAOLTA = nCFDOFAIAAOLTA;
+	}
+	public String getNIFDOTFA() {
+		return NIFDOTFA;
+	}
+	public void setNIFDOTFA(String nIFDOTFA) {
+		NIFDOTFA = nIFDOTFA;
+	}
+	public String getNCRFDOSAOBU() {
+		return NCRFDOSAOBU;
+	}
+	public void setNCRFDOSAOBU(String nCRFDOSAOBU) {
+		NCRFDOSAOBU = nCRFDOSAOBU;
+	}
+	public String getRefundableDeposits() {
+		return RefundableDeposits;
+	}
+	public void setRefundableDeposits(String refundableDeposits) {
+		RefundableDeposits = refundableDeposits;
+	}
+	public String getStatutoryDeposits() {
+		return StatutoryDeposits;
+	}
+	public void setStatutoryDeposits(String statutoryDeposits) {
+		StatutoryDeposits = statutoryDeposits;
+	}
+	public String getBWOFI() {
+		return BWOFI;
+	}
+	public void setBWOFI(String bWOFI) {
+		BWOFI = bWOFI;
+	}
+	public String getNIIDWCBAOFI() {
+		return NIIDWCBAOFI;
+	}
+	public void setNIIDWCBAOFI(String nIIDWCBAOFI) {
+		NIIDWCBAOFI = nIIDWCBAOFI;
+	}
+	public String getINVENTORY() {
+		return INVENTORY;
+	}
+	public void setINVENTORY(String iNVENTORY) {
+		INVENTORY = iNVENTORY;
+	}
+	public String getSUBD() {
+		return SUBD;
+	}
+	public void setSUBD(String sUBD) {
+		SUBD = sUBD;
+	}
+	public String getCBD() {
+		return CBD;
+	}
+	public void setCBD(String cBD) {
+		CBD = cBD;
+	}
+	public String getDITL() {
+		return DITL;
+	}
+	public void setDITL(String dITL) {
+		DITL = dITL;
+	}
+	public String getDITA() {
+		return DITA;
+	}
+	public void setDITA(String dITA) {
+		DITA = dITA;
+	}
+	public String getTermDeposits() {
+		return TermDeposits;
+	}
+	public void setTermDeposits(String termDeposits) {
+		TermDeposits = termDeposits;
+	}
+	public String getSAL() {
+		return SAL;
+	}
+	public void setSAL(String sAL) {
+		SAL = sAL;
+	}
+	public String getSAA() {
+		return SAA;
+	}
+	public void setSAA(String sAA) {
+		SAA = sAA;
+	}
+	public String getSTB() {
+		return STB;
+	}
+	public void setSTB(String sTB) {
+		STB = sTB;
+	}
+	public String getSTI() {
+		return STI;
+	}
+	public void setSTI(String sTI) {
+		STI = sTI;
+	}
+	public String getLAATC() {
+		return LAATC;
+	}
+	public void setLAATC(String lAATC) {
+		LAATC = lAATC;
+	}
+	public String getCRFBI() {
+		return CRFBI;
+	}
+	public void setCRFBI(String cRFBI) {
+		CRFBI = cRFBI;
+	}
+	public String getNCL() {
+		return NCL;
+	}
+	public void setNCL(String nCL) {
+		NCL = nCL;
+	}
+	public String getNCA() {
+		return NCA;
+	}
+	public void setNCA(String nCA) {
+		NCA = nCA;
+	}
+	public String getEFRA() {
+		return EFRA;
+	}
+	public void setEFRA(String eFRA) {
+		EFRA = eFRA;
+	}
+	public String getCPFDAPDOIP() {
+		return CPFDAPDOIP;
+	}
+	public void setCPFDAPDOIP(String cPFDAPDOIP) {
+		CPFDAPDOIP = cPFDAPDOIP;
+	}
+	public String getLIABILITIES() {
+		return LIABILITIES;
+	}
+	public void setLIABILITIES(String lIABILITIES) {
+		LIABILITIES = lIABILITIES;
+	}
+	public String getLAOE() {
+		return LAOE;
+	}
+	public void setLAOE(String lAOE) {
+		LAOE = lAOE;
+	}
+	public String getProjectMaterials() {
+		return ProjectMaterials;
+	}
+	public void setProjectMaterials(String projectMaterials) {
+		ProjectMaterials = projectMaterials;
+	}
+	public String getIFCIFV() {
+		return IFCIFV;
+	}
+	public void setIFCIFV(String iFCIFV) {
+		IFCIFV = iFCIFV;
+	}
+	public String getCPFPACOFAIAAOLTA() {
+		return CPFPACOFAIAAOLTA;
+	}
+	public void setCPFPACOFAIAAOLTA(String cPFPACOFAIAAOLTA) {
+		CPFPACOFAIAAOLTA = cPFPACOFAIAAOLTA;
+	}
+	public String getCPFGPASR() {
+		return CPFGPASR;
+	}
+	public void setCPFGPASR(String cPFGPASR) {
+		CPFGPASR = cPFGPASR;
+	}
+	public String getFixedAssets() {
+		return FixedAssets;
+	}
+	public void setFixedAssets(String fixedAssets) {
+		FixedAssets = fixedAssets;
+	}
+	public String getDOFA() {
+		return DOFA;
+	}
+	public void setDOFA(String dOFA) {
+		DOFA = dOFA;
+	}
+	public String getAdminExpenses() {
+		return AdminExpenses;
+	}
+	public void setAdminExpenses(String adminExpenses) {
+		AdminExpenses = adminExpenses;
+	}
+	public String getTCIATMS() {
+		return TCIATMS;
+	}
+	public void setTCIATMS(String tCIATMS) {
+		TCIATMS = tCIATMS;
+	}
+	public String getONPATP() {
+		return ONPATP;
+	}
+	public void setONPATP(String oNPATP) {
+		ONPATP = oNPATP;
+	}
+	public String getTOEATP() {
+		return TOEATP;
+	}
+	public void setTOEATP(String tOEATP) {
+		TOEATP = tOEATP;
+	}
+	public String getTEATTSOPC() {
+		return TEATTSOPC;
+	}
+	public void setTEATTSOPC(String tEATTSOPC) {
+		TEATTSOPC = tEATTSOPC;
+	}
+	public String getPreciousMetal() {
+		return PreciousMetal;
+	}
+	public void setPreciousMetal(String preciousMetal) {
+		PreciousMetal = preciousMetal;
+	}
+	public String getNIIRBC() {
+		return NIIRBC;
+	}
+	public void setNIIRBC(String nIIRBC) {
+		NIIRBC = nIIRBC;
+	}
+	public String getFEG() {
+		return FEG;
+	}
+	public void setFEG(String fEG) {
+		FEG = fEG;
+	}
+	public String getFERFCOCACE() {
+		return FERFCOCACE;
+	}
+	public void setFERFCOCACE(String fERFCOCACE) {
+		FERFCOCACE = fERFCOCACE;
+	}
+	public String getMonetaryCapital() {
+		return MonetaryCapital;
+	}
+	public void setMonetaryCapital(String monetaryCapital) {
+		MonetaryCapital = monetaryCapital;
+	}
+	public String getBEPS() {
+		return BEPS;
+	}
+	public void setBEPS(String bEPS) {
+		BEPS = bEPS;
+	}
+	public String getPCTR() {
+		return PCTR;
+	}
+	public void setPCTR(String pCTR) {
+		PCTR = pCTR;
+	}
+	public String getRSOICR() {
+		return RSOICR;
+	}
+	public void setRSOICR(String rSOICR) {
+		RSOICR = rSOICR;
+	}
+	public String getRSOE() {
+		return RSOE;
+	}
+	public void setRSOE(String rSOE) {
+		RSOE = rSOE;
+	}
+	public String getRSOCP() {
+		return RSOCP;
+	}
+	public void setRSOCP(String rSOCP) {
+		RSOCP = rSOCP;
+	}
+	public String getCIUPR() {
+		return CIUPR;
+	}
+	public void setCIUPR(String cIUPR) {
+		CIUPR = cIUPR;
+	}
+	public String getTRR() {
+		return TRR;
+	}
+	public void setTRR(String tRR) {
+		TRR = tRR;
+	}
+	public String getHFTFL() {
+		return HFTFL;
+	}
+	public void setHFTFL(String hFTFL) {
+		HFTFL = hFTFL;
+	}
+	public String getHFTFA() {
+		return HFTFA;
+	}
+	public void setHFTFA(String hFTFA) {
+		HFTFA = hFTFA;
+	}
+	public String getBWCC() {
+		return BWCC;
+	}
+	public void setBWCC(String bWCC) {
+		BWCC = bWCC;
+	}
+	public String getNCFFOA() {
+		return NCFFOA;
+	}
+	public void setNCFFOA(String nCFFOA) {
+		NCFFOA = nCFFOA;
+	}
+	public String getNetProfit() {
+		return NetProfit;
+	}
+	public void setNetProfit(String netProfit) {
+		NetProfit = netProfit;
+	}
+	public String getDevelopmentCosts() {
+		return DevelopmentCosts;
+	}
+	public void setDevelopmentCosts(String developmentCosts) {
+		DevelopmentCosts = developmentCosts;
+	}
+	public String getAFSFA() {
+		return AFSFA;
+	}
+	public void setAFSFA(String aFSFA) {
+		AFSFA = aFSFA;
+	}
+	public String getNIICBDADTBAOFIS() {
+		return NIICBDADTBAOFIS;
+	}
+	public void setNIICBDADTBAOFIS(String nIICBDADTBAOFIS) {
+		NIICBDADTBAOFIS = nIICBDADTBAOFIS;
+	}
+	public String getNIILAATC() {
+		return NIILAATC;
+	}
+	public void setNIILAATC(String nIILAATC) {
+		NIILAATC = nIILAATC;
+	}
+	public String getTotalProfit() {
+		return TotalProfit;
+	}
+	public void setTotalProfit(String totalProfit) {
+		TotalProfit = totalProfit;
+	}
+	public String getNII() {
+		return NII;
+	}
+	public void setNII(String nII) {
+		NII = nII;
+	}
+	public String getInterestIncome() {
+		return InterestIncome;
+	}
+	public void setInterestIncome(String interestIncome) {
+		InterestIncome = interestIncome;
+	}
+	public String getInterestExpenses() {
+		return InterestExpenses;
+	}
+	public void setInterestExpenses(String interestExpenses) {
+		InterestExpenses = interestExpenses;
+	}
+	public String getCurrentLiabilities() {
+		return CurrentLiabilities;
+	}
+	public void setCurrentLiabilities(String currentLiabilities) {
+		CurrentLiabilities = currentLiabilities;
+	}
+	public String getCurrentAssets() {
+		return CurrentAssets;
+	}
+	public void setCurrentAssets(String currentAssets) {
+		CurrentAssets = currentAssets;
+	}
+	public String getFAPUATR() {
+		return FAPUATR;
+	}
+	public void setFAPUATR(String fAPUATR) {
+		FAPUATR = fAPUATR;
+	}
+	public String getASUATR() {
+		return ASUATR;
+	}
+	public void setASUATR(String aSUATR) {
+		ASUATR = aSUATR;
+	}
+	public String getClaimsPaid() {
+		return ClaimsPaid;
+	}
+	public void setClaimsPaid(String claimsPaid) {
+		ClaimsPaid = claimsPaid;
+	}
+	public String getNCP() {
+		return NCP;
+	}
+	public void setNCP(String nCP) {
+		NCP = nCP;
+	}
+	public String getCEATBOTP() {
+		return CEATBOTP;
+	}
+	public void setCEATBOTP(String cEATBOTP) {
+		CEATBOTP = cEATBOTP;
+	}
+	public String getCEATEOTP() {
+		return CEATEOTP;
+	}
+	public void setCEATEOTP(String cEATEOTP) {
+		CEATEOTP = cEATEOTP;
+	}
+	public String getOEOC() {
+		return OEOC;
+	}
+	public void setOEOC(String oEOC) {
+		OEOC = oEOC;
+	}
+	public String getONCL() {
+		return ONCL;
+	}
+	public void setONCL(String oNCL) {
+		ONCL = oNCL;
+	}
+	public String getONCA() {
+		return ONCA;
+	}
+	public void setONCA(String oNCA) {
+		ONCA = oNCA;
+	}
+	public String getOtherLiabilities() {
+		return OtherLiabilities;
+	}
+	public void setOtherLiabilities(String otherLiabilities) {
+		OtherLiabilities = otherLiabilities;
+	}
+	public String getOCL() {
+		return OCL;
+	}
+	public void setOCL(String oCL) {
+		OCL = oCL;
+	}
+	public String getOCA() {
+		return OCA;
+	}
+	public void setOCA(String oCA) {
+		OCA = oCA;
+	}
+	public String getOOC() {
+		return OOC;
+	}
+	public void setOOC(String oOC) {
+		OOC = oOC;
+	}
+	public String getOOP() {
+		return OOP;
+	}
+	public void setOOP(String oOP) {
+		OOP = oOP;
+	}
+	public String getOOI() {
+		return OOI;
+	}
+	public void setOOI(String oOI) {
+		OOI = oOI;
+	}
+	public String getOtherPayables() {
+		return OtherPayables;
+	}
+	public void setOtherPayables(String otherPayables) {
+		OtherPayables = otherPayables;
+	}
+	public String getOtherReceivables() {
+		return OtherReceivables;
+	}
+	public void setOtherReceivables(String otherReceivables) {
+		OtherReceivables = otherReceivables;
+	}
+	public String getOtherAssets() {
+		return OtherAssets;
+	}
+	public void setOtherAssets(String otherAssets) {
+		OtherAssets = otherAssets;
+	}
+	public String getOCI() {
+		return OCI;
+	}
+	public void setOCI(String oCI) {
+		OCI = oCI;
+	}
+	public String getNIFSTBB() {
+		return NIFSTBB;
+	}
+	public void setNIFSTBB(String nIFSTBB) {
+		NIFSTBB = nIFSTBB;
+	}
+	public String getSOPIAAJV() {
+		return SOPIAAJV;
+	}
+	public void setSOPIAAJV(String sOPIAAJV) {
+		SOPIAAJV = sOPIAAJV;
+	}
+	public String getLFDONCA() {
+		return LFDONCA;
+	}
+	public void setLFDONCA(String lFDONCA) {
+		LFDONCA = lFDONCA;
+	}
+	public String getRPI() {
+		return RPI;
+	}
+	public void setRPI(String rPI) {
+		RPI = rPI;
+	}
+	public String getMembershipFees() {
+		return MembershipFees;
+	}
+	public void setMembershipFees(String membershipFees) {
+		MembershipFees = membershipFees;
+	}
+	public String getCER() {
+		return CER;
+	}
+	public void setCER(String cER) {
+		CER = cER;
+	}
+	public String getCustomerDeposits() {
+		return CustomerDeposits;
+	}
+	public void setCustomerDeposits(String customerDeposits) {
+		CustomerDeposits = customerDeposits;
+	}
+	public String getTreasuryStock() {
+		return TreasuryStock;
+	}
+	public void setTreasuryStock(String treasuryStock) {
+		TreasuryStock = treasuryStock;
+	}
+	public String getPRFLI() {
+		return PRFLI;
+	}
+	public void setPRFLI(String pRFLI) {
+		PRFLI = pRFLI;
+	}
+	public String getNIFECAMB() {
+		return NIFECAMB;
+	}
+	public void setNIFECAMB(String nIFECAMB) {
+		NIFECAMB = nIFECAMB;
+	}
+	public String getDTBAOFI() {
+		return DTBAOFI;
+	}
+	public void setDTBAOFI(String dTBAOFI) {
+		DTBAOFI = dTBAOFI;
+	}
+	public String getUPR() {
+		return UPR;
+	}
+	public void setUPR(String uPR) {
+		UPR = uPR;
+	}
+	public String getClaimReserves() {
+		return ClaimReserves;
+	}
+	public void setClaimReserves(String claimReserves) {
+		ClaimReserves = claimReserves;
+	}
+	public String getCBDS() {
+		return CBDS;
+	}
+	public void setCBDS(String cBDS) {
+		CBDS = cBDS;
+	}
+	public String getPRFLIRFR() {
+		return PRFLIRFR;
+	}
+	public void setPRFLIRFR(String pRFLIRFR) {
+		PRFLIRFR = pRFLIRFR;
+	}
+	public String getUPRRFR() {
+		return UPRRFR;
+	}
+	public void setUPRRFR(String uPRRFR) {
+		UPRRFR = uPRRFR;
+	}
+	public String getCRRFR() {
+		return CRRFR;
+	}
+	public void setCRRFR(String cRRFR) {
+		CRRFR = cRRFR;
+	}
+	public String getLTRFHIRFR() {
+		return LTRFHIRFR;
+	}
+	public void setLTRFHIRFR(String lTRFHIRFR) {
+		LTRFHIRFR = lTRFHIRFR;
+	}
+	public String getLTHIPR() {
+		return LTHIPR;
+	}
+	public void setLTHIPR(String lTHIPR) {
+		LTHIPR = lTHIPR;
+	}
+	public String getNIFSUB() {
+		return NIFSUB;
+	}
+	public void setNIFSUB(String nIFSUB) {
+		NIFSUB = nIFSUB;
+	}
+	public String getPledgeBorrowings() {
+		return PledgeBorrowings;
+	}
+	public void setPledgeBorrowings(String pledgeBorrowings) {
+		PledgeBorrowings = pledgeBorrowings;
+	}
+	public String getCRFMSIBS() {
+		return CRFMSIBS;
+	}
+	public void setCRFMSIBS(String cRFMSIBS) {
+		CRFMSIBS = cRFMSIBS;
+	}
+	public String getDAPPTMSBS() {
+		return DAPPTMSBS;
+	}
+	public void setDAPPTMSBS(String dAPPTMSBS) {
+		DAPPTMSBS = dAPPTMSBS;
+	}
+	public String getBorrowingsReceived() {
+		return BorrowingsReceived;
+	}
+	public void setBorrowingsReceived(String borrowingsReceived) {
+		BorrowingsReceived = borrowingsReceived;
+	}
+	public String getIIR() {
+		return IIR;
+	}
+	public void setIIR(String iIR) {
+		IIR = iIR;
+	}
+	public String getNCPFAOSAOBU() {
+		return NCPFAOSAOBU;
+	}
+	public void setNCPFAOSAOBU(String nCPFAOSAOBU) {
+		NCPFAOSAOBU = nCPFAOSAOBU;
+	}
+	public String getGOODWILL() {
+		return GOODWILL;
+	}
+	public void setGOODWILL(String gOODWILL) {
+		GOODWILL = gOODWILL;
+	}
+	public String getMSI() {
+		return MSI;
+	}
+	public void setMSI(String mSI) {
+		MSI = mSI;
+	}
+	public String getMII() {
+		return MII;
+	}
+	public void setMII(String mII) {
+		MII = mII;
+	}
+	public String getPBA() {
+		return PBA;
+	}
+	public void setPBA(String pBA) {
+		PBA = pBA;
+	}
+	public String getPUC() {
+		return PUC;
+	}
+	public void setPUC(String pUC) {
+		PUC = pUC;
+	}
+	public String getOCRCOA() {
+		return OCRCOA;
+	}
+	public void setOCRCOA(String oCRCOA) {
+		OCRCOA = oCRCOA;
+	}
+	public String getOCRCIA() {
+		return OCRCIA;
+	}
+	public void setOCRCIA(String oCRCIA) {
+		OCRCIA = oCRCIA;
+	}
+	public String getTRRD() {
+		return TRRD;
+	}
+	public void setTRRD(String tRRD) {
+		TRRD = tRRD;
+	}
+	public String getOCRCFA() {
+		return OCRCFA;
+	}
+	public void setOCRCFA(String oCRCFA) {
+		OCRCFA = oCRCFA;
+	}
+	public String getPRFOIC() {
+		return PRFOIC;
+	}
+	public void setPRFOIC(String pRFOIC) {
+		PRFOIC = pRFOIC;
+	}
+	public String getNCRFRB() {
+		return NCRFRB;
+	}
+	public void setNCRFRB(String nCRFRB) {
+		NCRFRB = nCRFRB;
+	}
+	public String getCRFDOI() {
+		return CRFDOI;
+	}
+	public void setCRFDOI(String cRFDOI) {
+		CRFDOI = cRFDOI;
+	}
+	public String getIHCACR() {
+		return IHCACR;
+	}
+	public void setIHCACR(String iHCACR) {
+		IHCACR = iHCACR;
+	}
+	public String getNHCACI() {
+		return NHCACI;
+	}
+	public void setNHCACI(String nHCACI) {
+		NHCACI = nHCACI;
+	}
+	public String getHCACI() {
+		return HCACI;
+	}
+	public void setHCACI(String hCACI) {
+		HCACI = hCACI;
+	}
+	public String getHCACE() {
+		return HCACE;
+	}
+	public void setHCACE(String hCACE) {
+		HCACE = hCACE;
+	}
+	public String getITE() {
+		return ITE;
+	}
+	public void setITE(String iTE) {
+		ITE = iTE;
+	}
+	public String getOwnersEquity() {
+		return OwnersEquity;
+	}
+	public void setOwnersEquity(String ownersEquity) {
+		OwnersEquity = ownersEquity;
+	}
+	public String getERSOICR() {
+		return ERSOICR;
+	}
+	public void setERSOICR(String eRSOICR) {
+		ERSOICR = eRSOICR;
+	}
+	public String getENCIICR() {
+		return ENCIICR;
+	}
+	public void setENCIICR(String eNCIICR) {
+		ENCIICR = eNCIICR;
+	}
+	public String getNCFFIA() {
+		return NCFFIA;
+	}
+	public void setNCFFIA(String nCFFIA) {
+		NCFFIA = nCFFIA;
+	}
+	public String getInvestIncome() {
+		return InvestIncome;
+	}
+	public void setInvestIncome(String investIncome) {
+		InvestIncome = investIncome;
+	}
+	public String getInvestmentPro() {
+		return InvestmentPro;
+	}
+	public void setInvestmentPro(String investmentPro) {
+		InvestmentPro = investmentPro;
+	}
+	public String getCPFAOI() {
+		return CPFAOI;
+	}
+	public void setCPFAOI(String cPFAOI) {
+		CPFAOI = cPFAOI;
+	}
+	public String getSURRENDERS() {
+		return SURRENDERS;
+	}
+	public void setSURRENDERS(String sURRENDERS) {
+		SURRENDERS = sURRENDERS;
+	}
+	public String getFCTD() {
+		return FCTD;
+	}
+	public void setFCTD(String fCTD) {
+		FCTD = fCTD;
+	}
+	public String getRetainedProfits() {
+		return RetainedProfits;
+	}
+	public void setRetainedProfits(String retainedProfits) {
+		RetainedProfits = retainedProfits;
+	}
+	public String getIntangibleAssets() {
+		return IntangibleAssets;
+	}
+	public void setIntangibleAssets(String intangibleAssets) {
+		IntangibleAssets = intangibleAssets;
+	}
+	public String getCBDADTBAOFIS() {
+		return CBDADTBAOFIS;
+	}
+	public void setCBDADTBAOFIS(String cBDADTBAOFIS) {
+		CBDADTBAOFIS = cBDADTBAOFIS;
+	}
+	public String getCRBEI() {
+		return CRBEI;
+	}
+	public void setCRBEI(String cRBEI) {
+		CRBEI = cRBEI;
+	}
+	public String getCRFCC() {
+		return CRFCC;
+	}
+	public void setCRFCC(String cRFCC) {
+		CRFCC = cRFCC;
+	}
+	public String getDEPS() {
+		return DEPS;
+	}
+	public void setDEPS(String dEPS) {
+		DEPS = dEPS;
+	}
+	public String getCABWCB() {
+		return CABWCB;
+	}
+	public void setCABWCB(String cABWCB) {
+		CABWCB = cABWCB;
+	}
+	public String getNIICACE() {
+		return NIICACE;
+	}
+	public void setNIICACE(String nIICACE) {
+		NIICACE = nIICACE;
+	}
+	public String getNIIPFOFI() {
+		return NIIPFOFI;
+	}
+	public void setNIIPFOFI(String nIIPFOFI) {
+		NIIPFOFI = nIIPFOFI;
+	}
+	public String getBFCB() {
+		return BFCB;
+	}
+	public void setBFCB(String bFCB) {
+		BFCB = bFCB;
+	}
+	public String getNIIBFCB() {
+		return NIIBFCB;
+	}
+	public void setNIIBFCB(String nIIBFCB) {
+		NIIBFCB = nIIBFCB;
+	}
+	public String getMarketingExpen() {
+		return MarketingExpen;
+	}
+	public void setMarketingExpen(String marketingExpen) {
+		MarketingExpen = marketingExpen;
+	}
+	public String getCRFSOGAROS() {
+		return CRFSOGAROS;
+	}
+	public void setCRFSOGAROS(String cRFSOGAROS) {
+		CRFSOGAROS = cRFSOGAROS;
+	}
+	public String getDFL() {
+		return DFL;
+	}
+	public void setDFL(String dFL) {
+		DFL = dFL;
+	}
+	public String getDFA() {
+		return DFA;
+	}
+	public void setDFA(String dFA) {
+		DFA = dFA;
+	}
+	public String getGAAE() {
+		return GAAE;
+	}
+	public void setGAAE(String gAAE) {
+		GAAE = gAAE;
+	}
+	public String getGRP() {
+		return GRP;
+	}
+	public void setGRP(String gRP) {
+		GRP = gRP;
+	}
+	public String getNCLDWOY() {
+		return NCLDWOY;
+	}
+	public void setNCLDWOY(String nCLDWOY) {
+		NCLDWOY = nCLDWOY;
+	}
+	public String getNCADWOY() {
+		return NCADWOY;
+	}
+	public void setNCADWOY(String nCADWOY) {
+		NCADWOY = nCADWOY;
+	}
+	public String getEarnedPremium() {
+		return EarnedPremium;
+	}
+	public void setEarnedPremium(String earnedPremium) {
+		EarnedPremium = earnedPremium;
+	}
+	public String getSurplusReserves() {
+		return SurplusReserves;
+	}
+	public void setSurplusReserves(String surplusReserves) {
+		SurplusReserves = surplusReserves;
+	}
+	public String getOperatingCost() {
+		return OperatingCost;
+	}
+	public void setOperatingCost(String operatingCost) {
+		OperatingCost = operatingCost;
+	}
+	public String getOperatingProfit() {
+		return OperatingProfit;
+	}
+	public void setOperatingProfit(String operatingProfit) {
+		OperatingProfit = operatingProfit;
+	}
+	public String getOperatingIncome() {
+		return OperatingIncome;
+	}
+	public void setOperatingIncome(String operatingIncome) {
+		OperatingIncome = operatingIncome;
+	}
+	public String getBTAS() {
+		return BTAS;
+	}
+	public void setBTAS(String bTAS) {
+		BTAS = bTAS;
+	}
+	public String getNOI() {
+		return NOI;
+	}
+	public void setNOI(String nOI) {
+		NOI = nOI;
+	}
+	public String getNOE() {
+		return NOE;
+	}
+	public void setNOE(String nOE) {
+		NOE = nOE;
+	}
+	public String getTOC() {
+		return TOC;
+	}
+	public void setTOC(String tOC) {
+		TOC = tOC;
+	}
+	public String getTOI() {
+		return TOI;
+	}
+	public void setTOI(String tOI) {
+		TOI = tOI;
+	}
+	public String getOPANP() {
+		return OPANP;
+	}
+	public void setOPANP(String oPANP) {
+		OPANP = oPANP;
+	}
+	public String getPDPA() {
+		return PDPA;
+	}
+	public void setPDPA(String pDPA) {
+		PDPA = pDPA;
+	}
+	public String getDTR() {
+		return DTR;
+	}
+	public void setDTR(String dTR) {
+		DTR = dTR;
+	}
+	public String getDividendPayable() {
+		return DividendPayable;
+	}
+	public void setDividendPayable(String dividendPayable) {
+		DividendPayable = dividendPayable;
+	}
+	public String getInterestPayable() {
+		return InterestPayable;
+	}
+	public void setInterestPayable(String interestPayable) {
+		InterestPayable = interestPayable;
+	}
+	public String getClaimsPayable() {
+		return ClaimsPayable;
+	}
+	public void setClaimsPayable(String claimsPayable) {
+		ClaimsPayable = claimsPayable;
+	}
+	public String getNotesPayable() {
+		return NotesPayable;
+	}
+	public void setNotesPayable(String notesPayable) {
+		NotesPayable = notesPayable;
+	}
+	public String getHCACP() {
+		return HCACP;
+	}
+	public void setHCACP(String hCACP) {
+		HCACP = hCACP;
+	}
+	public String getBondsPayable() {
+		return BondsPayable;
+	}
+	public void setBondsPayable(String bondsPayable) {
+		BondsPayable = bondsPayable;
+	}
+	public String getAccountsPayable() {
+		return AccountsPayable;
+	}
+	public void setAccountsPayable(String accountsPayable) {
+		AccountsPayable = accountsPayable;
+	}
+	public String getSRP() {
+		return SRP;
+	}
+	public void setSRP(String sRP) {
+		SRP = sRP;
+	}
+	public String getTaxesPayable() {
+		return TaxesPayable;
+	}
+	public void setTaxesPayable(String taxesPayable) {
+		TaxesPayable = taxesPayable;
+	}
+	public String getPremiumReceivables() {
+		return PremiumReceivables;
+	}
+	public void setPremiumReceivables(String premiumReceivables) {
+		PremiumReceivables = premiumReceivables;
+	}
+	public String getSubrogationReceivables() {
+		return SubrogationReceivables;
+	}
+	public void setSubrogationReceivables(String subrogationReceivables) {
+		SubrogationReceivables = subrogationReceivables;
+	}
+	public String getRCRR() {
+		return RCRR;
+	}
+	public void setRCRR(String rCRR) {
+		RCRR = rCRR;
+	}
+	public String getRFR() {
+		return RFR;
+	}
+	public void setRFR(String rFR) {
+		RFR = rFR;
+	}
+	public String getDividendReceivable() {
+		return DividendReceivable;
+	}
+	public void setDividendReceivable(String dividendReceivable) {
+		DividendReceivable = dividendReceivable;
+	}
+	public String getInterestReceivable() {
+		return InterestReceivable;
+	}
+	public void setInterestReceivable(String interestReceivable) {
+		InterestReceivable = interestReceivable;
+	}
+	public String getNotesReceivable() {
+		return NotesReceivable;
+	}
+	public void setNotesReceivable(String notesReceivable) {
+		NotesReceivable = notesReceivable;
+	}
+	public String getAccountsReceivable() {
+		return AccountsReceivable;
+	}
+	public void setAccountsReceivable(String accountsReceivable) {
+		AccountsReceivable = accountsReceivable;
+	}
+	public String getOAGA() {
+		return OAGA;
+	}
+	public void setOAGA(String oAGA) {
+		OAGA = oAGA;
+	}
+	public String getPREPAYMENTS() {
+		return PREPAYMENTS;
+	}
+	public void setPREPAYMENTS(String pREPAYMENTS) {
+		PREPAYMENTS = pREPAYMENTS;
+	}
+	public String getEstimatedLiabilities() {
+		return EstimatedLiabilities;
+	}
+	public void setEstimatedLiabilities(String estimatedLiabilities) {
+		EstimatedLiabilities = estimatedLiabilities;
+	}
+	public String getPRIA() {
+		return PRIA;
+	}
+	public void setPRIA(String pRIA) {
+		PRIA = pRIA;
+	}
+	public String getAdvanceReceipts() {
+		return AdvanceReceipts;
+	}
+	public void setAdvanceReceipts(String advanceReceipts) {
+		AdvanceReceipts = advanceReceipts;
+	}
+	public String getUCP() {
+		return UCP;
+	}
+	public void setUCP(String uCP) {
+		UCP = uCP;
+	}
+	public String getLTPE() {
+		return LTPE;
+	}
+	public void setLTPE(String lTPE) {
+		LTPE = lTPE;
+	}
+	public String getLTL() {
+		return LTL;
+	}
+	public void setLTL(String lTL) {
+		LTL = lTL;
+	}
+	public String getLTEI() {
+		return LTEI;
+	}
+	public void setLTEI(String lTEI) {
+		LTEI = lTEI;
+	}
+	public String getLTB() {
+		return LTB;
+	}
+	public void setLTB(String lTB) {
+		LTB = lTB;
+	}
+	public String getLTI() {
+		return LTI;
+	}
+	public void setLTI(String lTI) {
+		LTI = lTI;
+	}
+	public String getLTP() {
+		return LTP;
+	}
+	public void setLTP(String lTP) {
+		LTP = lTP;
+	}
+	public String getLTR() {
+		return LTR;
+	}
+	public void setLTR(String lTR) {
+		LTR = lTR;
+	}
+	public String getLTIOB() {
+		return LTIOB;
+	}
+	public void setLTIOB(String lTIOB) {
+		LTIOB = lTIOB;
+	}
+	public String getPDP() {
+		return PDP;
+	}
+	public void setPDP(String pDP) {
+		PDP = pDP;
+	}
+	public String getCPFTAS() {
+		return CPFTAS;
+	}
+	public void setCPFTAS(String cPFTAS) {
+		CPFTAS = cPFTAS;
+	}
+	public String getCPTAFE() {
+		return CPTAFE;
+	}
+	public void setCPTAFE(String cPTAFE) {
+		CPTAFE = cPTAFE;
+	}
+	public String getIHCACP() {
+		return IHCACP;
+	}
+	public void setIHCACP(String iHCACP) {
+		IHCACP = iHCACP;
+	}
+	public String getCPFOFA() {
+		return CPFOFA;
+	}
+	public void setCPFOFA(String cPFOFA) {
+		CPFOFA = cPFOFA;
+	}
+	public String getCPFOOA() {
+		return CPFOOA;
+	}
+	public void setCPFOOA(String cPFOOA) {
+		CPFOOA = cPFOOA;
+	}
+	public String getCPFOIA() {
+		return CPFOIA;
+	}
+	public void setCPFOIA(String cPFOIA) {
+		CPFOIA = cPFOIA;
+	}
+	public String getOICCP() {
+		return OICCP;
+	}
+	public void setOICCP(String oICCP) {
+		OICCP = oICCP;
+	}
+	public String getNIIPL() {
+		return NIIPL;
+	}
+	public void setNIIPL(String nIIPL) {
+		NIIPL = nIIPL;
+	}
+	public String getSpecialReserves() {
+		return SpecialReserves;
+	}
+	public void setSpecialReserves(String specialReserves) {
+		SpecialReserves = specialReserves;
+	}
+	public String getSpecialPayables() {
+		return SpecialPayables;
+	}
+	public void setSpecialPayables(String specialPayables) {
+		SpecialPayables = specialPayables;
+	}
+	public String getCapitalReserves() {
+		return CapitalReserves;
+	}
+	public void setCapitalReserves(String capitalReserves) {
+		CapitalReserves = capitalReserves;
+	}
+	public String getADL() {
+		return ADL;
+	}
+	public void setADL(String aDL) {
+		ADL = aDL;
+	}
+	public String getASSETS() {
+		return ASSETS;
+	}
+	public void setASSETS(String aSSETS) {
+		ASSETS = aSSETS;
+	}
+	public String getTCI() {
+		return TCI;
+	}
+	public void setTCI(String tCI) {
+		TCI = tCI;
+	}
+	public String getQuarter() {
+		return Quarter;
+	}
+	public String setQuarter(String quarter) {
+		return Quarter = quarter;
+	}
+	public String getYear() {
+		return Year;
+	}
+	public void setYear(String year) {
+		Year = year;
+	}
+	public String getCDate() {
+		return CDate;
+	}
+	public void setCDate(String cDate) {
+		CDate = cDate;
+	}
+	public int getZCFlag() {
+		return ZCFlag;
+	}
+	public void setZCFlag(int zCFlag) {
+		ZCFlag = zCFlag;
+	}
+	public int getLRFlag() {
+		return LRFlag;
+	}
+	public void setLRFlag(int lRFlag) {
+		LRFlag = lRFlag;
+	}
+	public int getXJFlag() {
+		return XJFlag;
+	}
+	public void setXJFlag(int xJFlag) {
+		XJFlag = xJFlag;
+	}
+	public int getNum() {
+		return num;
+	}
+	public void setNum(int num) {
+		this.num = num;
+	}
+
+}

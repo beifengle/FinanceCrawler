@@ -1,0 +1,137 @@
+package com.yysoft.util;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.yysoft.entity.Finance;
+
+/**
+ * 功能描述：采集的结果内恰性检测
+ * @author Huanyan.Lu
+ * @date:2016年5月16日
+ * @time:下午1:52:18
+ * @version:1.0
+ */
+public class InspectorValues {
+	private static Logger logger = LogManager.getLogger("fcDiffLoger"); //内恰性
+	
+	public static void check(Finance finance){
+		 double maxLimit =1.01;//用于判断等式大于
+		 double minLimit = 0.99;//用于判断等式小于
+		//1、资产负债表内恰关系检查
+		 double ASSETS = 0;//资产总计
+		 double LIABILITIES =0;//负债合计
+		 double OwnersEquity =0;//所有者权益合计
+		 
+		 if(StringUtils.isNotEmpty(finance.getASSETS())){
+			 ASSETS =Double.valueOf(finance.getASSETS());//资产总计
+		 }
+		 if(StringUtils.isNotEmpty(finance.getLIABILITIES())){
+			 LIABILITIES =Double.valueOf(finance.getLIABILITIES());//负债合计
+		 }
+		 if(StringUtils.isNotEmpty(finance.getOwnersEquity())){
+			 OwnersEquity =Double.valueOf(finance.getOwnersEquity());//所有者权益合计
+		 }
+		 
+		 if(ASSETS!=0 && (LIABILITIES+OwnersEquity)!=0){
+			 if(Math.abs(ASSETS/(LIABILITIES+OwnersEquity))>maxLimit || Math.abs(ASSETS/(LIABILITIES+OwnersEquity))<minLimit){
+				 logger.info("资产负债表");
+				 logger.info("等式左右两边比值（绝对值大于0.01）:"+Math.abs(ASSETS/(LIABILITIES+OwnersEquity)));
+				 logger.info("股票代码:" + finance.getCode() +",报告期：" + finance.getReportDate());
+				 logger.info("资产总计 !＝ 负债合计  + 所有者权益合计!");
+				 logger.info("资产总计:" + finance.getASSETS());
+				 logger.info("负债合计:" + finance.getLIABILITIES());
+				 logger.info("所有者权益合计:" + finance.getOwnersEquity());
+			 }
+		 }else{
+			 if(ASSETS==0 || LIABILITIES==0 || OwnersEquity==0){
+				 logger.info("\r\n");
+				 logger.info("资产负债表");
+				 logger.info("等式两边存在0值。");
+				 logger.info("股票代码:" + finance.getCode() +",报告期：" + finance.getReportDate());
+				 logger.info("资产总计 !＝ 负债合计  + 所有者权益合计!");
+				 logger.info("资产总计:" + finance.getASSETS());
+				 logger.info("负债合计:" + finance.getLIABILITIES());
+				 logger.info("所有者权益合计:" + finance.getOwnersEquity()); 
+			 }
+		 }
+		
+		//2、利润分配表内恰关系检查.
+		 double NetProfit = 0;//净利润
+		 double MII =0;//少数股东损益
+		 double ONPATP =0;//归属于母公司股东的净利润
+		 
+		 if(StringUtils.isNotEmpty(finance.getNetProfit())){
+			 NetProfit =Double.valueOf(finance.getNetProfit());//净利润
+		 }
+		 if(StringUtils.isNotEmpty(finance.getMII())){
+			 MII =Double.valueOf(finance.getMII());//少数股东损益
+		 }
+		 if(StringUtils.isNotEmpty(finance.getONPATP())){
+			 ONPATP =Double.valueOf(finance.getONPATP());//归属于母公司股东的净利润
+		 }
+		 
+		 if(NetProfit!=0 && (MII+ONPATP)!=0){
+			 if(Math.abs(NetProfit/(MII+ONPATP))>maxLimit || Math.abs(NetProfit/(MII+ONPATP))<minLimit){
+				 logger.info("利润分配表");
+				 logger.info("等式左右两边差值（绝对值大于0.01）:"+Math.abs(NetProfit/(MII+ONPATP)));
+				 logger.info("股票代码:" + finance.getCode() +",报告期：" + finance.getReportDate());
+				 logger.info("净利润 !＝ 少数股东损益  + 归属于母公司股东的净利润!");
+				 logger.info("净利润:" + finance.getNetProfit());
+				 logger.info("少数股东损益:" + finance.getMII());
+				 logger.info("归属于母公司股东的净利润:" + finance.getONPATP());
+			 }
+		 }else{
+			 if(NetProfit==0 || MII==0 || ONPATP==0){
+				 logger.info("\r\n");
+				 logger.info("利润分配表");
+				 logger.info("等式两边存在0值。");
+				 logger.info("股票代码:" + finance.getCode() +",报告期：" + finance.getReportDate());
+				 logger.info("净利润 !＝ 少数股东损益  + 归属于母公司股东的净利润!");
+				 logger.info("净利润:" + finance.getNetProfit());
+				 logger.info("少数股东损益:" + finance.getMII());
+				 logger.info("归属于母公司股东的净利润:" + finance.getONPATP()); 
+			 }
+		 }
+		//3、现金流量表内恰关系检查.
+		 double NIICACE = 0;//现金及现金等价物净增加额
+		 double CEATEOTP =0;//期末现金及现金等价物余额
+		 double CEATBOTP  =0;//期初现金及现金等价物余额
+		 
+		 if(StringUtils.isNotEmpty(finance.getNIICACE())){
+			 NIICACE =Double.valueOf(finance.getNIICACE());//净利润
+		 }
+		 if(StringUtils.isNotEmpty(finance.getCEATEOTP())){
+			 CEATEOTP =Double.valueOf(finance.getCEATEOTP());//少数股东损益
+		 }
+		 if(StringUtils.isNotEmpty(finance.getCEATBOTP())){
+			 CEATBOTP =Double.valueOf(finance.getCEATBOTP());//归属于母公司股东的净利润
+		 }
+		 
+		 if(NIICACE!=0 && (CEATEOTP-CEATBOTP)!=0){
+			 if(Math.abs(NIICACE/(CEATEOTP-CEATBOTP))>maxLimit || Math.abs(NIICACE/(CEATEOTP-CEATBOTP))<minLimit){
+				 logger.info("现金流量表");
+				 logger.info("等式左右两边差值（绝对值大于0.01）:"+Math.abs(NIICACE/(CEATEOTP-CEATBOTP)));
+				 logger.info("股票代码:" + finance.getCode() +",报告期：" + finance.getReportDate());
+				 logger.info("现金及现金等价物净增加额 !＝ 期末现金及现金等价物余额－期初现金及现金等价物余额!");
+				 logger.info("现金及现金等价物净增加额:" + finance.getNIICACE());
+				 logger.info("期末现金及现金等价物余额:" + finance.getCEATEOTP());
+				 logger.info("期初现金及现金等价物余额:" + finance.getCEATBOTP());
+			 }
+		 }else{
+			 if(NIICACE==0 || CEATEOTP==0 || CEATBOTP==0){
+				 logger.info("\r\n");
+				 logger.info("现金流量表");
+				 logger.info("等式两边存在0值。");
+				 logger.info("股票代码:" + finance.getCode() +",报告期：" + finance.getReportDate());
+				 logger.info("现金及现金等价物净增加额 !＝ 期末现金及现金等价物余额－期初现金及现金等价物余额!");
+				 logger.info("现金及现金等价物净增加额:" + finance.getNIICACE());
+				 logger.info("期末现金及现金等价物余额:" + finance.getCEATEOTP());
+				 logger.info("期初现金及现金等价物余额:" + finance.getCEATBOTP()); 
+			 }
+		 }
+		 
+		 logger.info("\r\n");
+	}
+
+}

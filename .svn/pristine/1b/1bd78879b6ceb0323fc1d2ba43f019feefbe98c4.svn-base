@@ -1,0 +1,161 @@
+package com.yysoft.mgr;
+
+import java.io.BufferedReader;
+import java.util.ArrayList;
+import java.util.Date;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.yysoft.dao.StockDAO;
+import com.yysoft.data.handle.PerShareReponse;
+import com.yysoft.entity.StockDividends;
+import com.yysoft.util.ConfigParser;
+import com.yysoft.util.Constant;
+import com.yysoft.util.DateUtils;
+import com.yysoft.util.GeneralCrawler;
+import com.yysoft.util.StringUtils;
+
+/**
+ * 功能描述： 1.拼接股息和送转信息采集入口地址,金融界 2.调用GeneralCrawler.getPageString获取页面内容 3.解析
+ * 
+ * @author bxsun
+ * @date:2015年11月6日
+ * @time:上午10:57:50
+ * @version:1.0
+ */
+
+// 中报5-9月
+// 年报1-7月
+public class DividendGather {
+	private static Logger logger = LogManager.getLogger("fcDividendLoger"); // 记录日志
+
+	public static void gather() {
+		new ConfigParser();
+		int year = 2015;
+		// for(;year>=2007;year--){
+		BufferedReader[] details = new BufferedReader[2];
+		String url1 = "http://stock.jrj.com.cn/report/js/fh/" + year + "-12-31.js?ts=1460597069051";// 2015年分红采集入口
+		String url2 = "http://stock.jrj.com.cn/report/js/sz/" + year + "-12-31.js?ts=1460108681810";// 2015年送转采集入口
+
+		//String url1 = "http://stock.jrj.com.cn/report/js/fh/" + year + "-06-30.js?ts=1460597069051";// 2016年分红采集入口
+		//String url2 = "http://stock.jrj.com.cn/report/js/sz/" + year + "-06-30.js?ts=1460108681810";// 2016年送转采集入口
+
+		ArrayList<StockDividends> dividends1 = new ArrayList<StockDividends>();
+		ArrayList<StockDividends> dividends2 = new ArrayList<StockDividends>();
+
+		details[0] = GeneralCrawler.getPageBufferedReader(url1, Constant.ENCODEGBK);
+		details[1] = GeneralCrawler.getPageBufferedReader(url2, Constant.ENCODEGBK);
+
+		dividends1 = PerShareReponse.ParseSheetDividend(details[0], year + "-12-31");// 2015年年报分红采集
+		dividends2 = PerShareReponse.ParseSheetDividend(details[1], year + "-12-31");// 2015年年报送转采集
+		//dividends1 = PerShareReponse.ParseSheetJRJ2(details[0], year + "-06-30");// 2016年中报分红采集
+		//dividends2 = PerShareReponse.ParseSheetJRJ2(details[1], year + "-06-30");// 2016年中报送转采集
+	}
+	// }
+
+	public static void exec() {
+		double stockTotal = 0;
+		double stockTotal2 = 0;
+		double value = 0;
+		ArrayList<StockDividends> divilists = StockDAO.getStockDividendsCode();
+		for (StockDividends dlist : divilists) {
+			if (dlist.getRecordDate().equals("")) {
+				// 根据公告期时间修改股本数
+				stockTotal = StockDAO.getStockTotal(dlist.getCode(), dlist.getAnnounDate());
+				stockTotal2 = StockDAO.getStockTotal2(dlist.getCode(), dlist.getReportDate());
+				value = Math.abs((stockTotal - stockTotal2) / stockTotal);
+				if (value >= 1) {
+					logger.info(dlist.getCode() + ":股本差距超过一倍,进行数据验证");
+					String sql = "update stock_dividends set stock_total=" + stockTotal + " where code='"
+							+ dlist.getCode() + "' and announDate='" + dlist.getAnnounDate() + "'";
+					StockDAO.runSql(sql);
+				}
+			} else {
+				// 根据期时间修改为股权登记日股本数
+				int date = Integer.parseInt(dlist.getRecordDate().replaceAll("-", ""));
+				Date cdate = new Date();
+				int date2 = Integer.parseInt(DateUtils.format2(cdate).replaceAll("-", ""));
+				// 股权登记日在今日之前,以股权登记日股本计
+				if (date2 > date) {
+					stockTotal = StockDAO.getStockTotal(dlist.getCode(), dlist.getRecordDate());
+					stockTotal2 = StockDAO.getStockTotal2(dlist.getCode(), dlist.getReportDate());
+					value = Math.abs((stockTotal - stockTotal2) / stockTotal);
+					if (value >= 1) {
+						logger.info(dlist.getCode() + ":股本差距超过一倍,进行数据验证");
+						String sql = "update stock_dividends set stock_total=" + stockTotal + " where code='"
+								+ dlist.getCode() + "' and recordDate='" + dlist.getRecordDate() + "'";
+						StockDAO.runSql(sql);
+					}
+				} else {
+					//股权登记日在今日之后,以公告日日股本计
+					stockTotal = StockDAO.getStockTotal(dlist.getCode(), dlist.getAnnounDate());
+					stockTotal2 = StockDAO.getStockTotal2(dlist.getCode(), dlist.getReportDate());
+					value = Math.abs((stockTotal - stockTotal2) / stockTotal);
+					if (value >= 1) {
+						logger.info(dlist.getCode() + ":股本差距超过一倍,进行数据验证");
+						String sql = "update stock_dividends set stock_total=" + stockTotal + " where code='"
+								+ dlist.getCode() + "' and announDate='" + dlist.getAnnounDate() + "'";
+						StockDAO.runSql(sql);
+					}
+				}
+			}
+		}
+	}
+
+	// 截取送配详情中的股本数量.
+	public static void exec2() {
+		String a = "";
+		double stockTotal = 0;
+		ArrayList<StockDividends> divilists = StockDAO.getStockDividendsCode();
+		for (StockDividends dlist : divilists) {
+			a = dlist.getDividendPlan();
+			if (a.contains("总股本")) {
+				String b = StringUtils.getStrByReg("总股本(.*?)万", a);
+				double c = Double.parseDouble(b) * 10000;
+				logger.info("股票代码:"+dlist.getCode());
+				logger.info("股票报告期:"+dlist.getReportDate());
+				logger.info("截取到的股本总数为:" +c);
+				logger.info("--------------------");
+				String sql = "update stock_dividends set stock_total=" + c + " where code='" + dlist.getCode()
+						+ "' and reportDate='" + dlist.getReportDate() + "' and stock_total IS NULL";
+				StockDAO.runSql(sql);
+			} else {
+				// 根据报告期时间修改股本数
+				if (dlist.getRecordDate().equals("")) {
+					// 根据公告期时间修改股本数
+					stockTotal = StockDAO.getStockTotal(dlist.getCode(), dlist.getAnnounDate());
+					String sql = "update stock_dividends set stock_total=" + stockTotal + " where code='"
+							+ dlist.getCode() + "' and announDate='" + dlist.getAnnounDate()
+							+ "' and stock_total IS NULL";
+					StockDAO.runSql(sql);
+				} else {
+					// 根据期时间修改为股权登记日股本数
+					int date = Integer.parseInt(dlist.getRecordDate().replaceAll("-", ""));
+					Date cdate = new Date();
+					int date2 = Integer.parseInt(DateUtils.format2(cdate).replaceAll("-", ""));
+					// 股权登记日在今日之前,以股权登记日股本计
+					if (date2 > date) {
+						stockTotal = StockDAO.getStockTotal(dlist.getCode(), dlist.getRecordDate());
+						String sql = "update stock_dividends set stock_total=" + stockTotal + " where code='"
+								+ dlist.getCode() + "' and recordDate='" + dlist.getRecordDate()
+								+ "' and stock_total IS NULL";
+						StockDAO.runSql(sql);
+					} else {
+						// 股权登记日在今日之后,以公告日股本计
+						stockTotal = StockDAO.getStockTotal(dlist.getCode(), dlist.getAnnounDate());
+						String sql = "update stock_dividends set stock_total=" + stockTotal + " where code='"
+								+ dlist.getCode() + "' and announDate='" + dlist.getAnnounDate()
+								+ "' and stock_total IS NULL";
+						StockDAO.runSql(sql);
+					}
+				}
+			}
+		}
+	}
+	// main（）测试
+	public static void main(String[] args) {
+		new ConfigParser();
+		DividendGather.gather();
+		DividendGather.exec2();
+		DividendGather.exec();
+	}
+}

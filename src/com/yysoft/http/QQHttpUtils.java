@@ -1,0 +1,90 @@
+package com.yysoft.http;
+
+import java.io.IOException;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.yysoft.dao.StockDAO;
+import com.yysoft.entity.Finance;
+import com.yysoft.xmlparser.QQPageParser;
+
+
+/**
+ * 功能描述：腾讯财报表采集入口
+ * @author Huanyan.Lu
+ * @date:2016年5月11日
+ * @time:上午11:30:16
+ * @version:1.0
+ */
+@SuppressWarnings("deprecation")
+public class QQHttpUtils {
+	private static Logger logger = LogManager.getLogger(StockDAO.class); //
+	private static Logger errorlogger = LogManager.getLogger("fcErrorLoger"); //
+
+	/**
+	 * Description: 三大财报采集入口
+	 * @param code
+	 *            要采集的股票代码
+	 * @param name
+	 *            要采集的股票简称
+	 * @param reportType
+	 *            要采集的财报表类型，1-资产负债表，2-现金流量表，3-公司利润表
+	 * @param reportDate
+	 *            要采集的财报报告期
+	 * @param isBank
+	 *            是否银行类:是-true ,否-false
+	 * @return
+	 */
+	public static Finance downPage(Finance finance,String code, String name, int reportType, String reportDate, boolean isBank) {
+		String urlCode = code.substring(2);
+		Finance financeTemp = null;//临时对象
+		String responseContent = null;
+		String urlLoad = "";// 要采集的URL
+		int gatherYear = Integer.valueOf(reportDate.substring(0, 4));// 要采集的年份
+		if (reportType == 1) {
+			urlLoad = "http://stock.finance.qq.com/corp1/cbsheet.php?zqdm=" + urlCode + "&type=" + gatherYear;// 资产负债表页面链接
+		} else if (reportType == 2) {
+			urlLoad = "http://stock.finance.qq.com/corp1/cfst.php?zqdm=" + urlCode + "&type=" + gatherYear;// 现金流量表页面链接
+		} else if (reportType == 3) {
+			urlLoad = "http://stock.finance.qq.com/corp1/inst.php?zqdm=" + urlCode + "&type=" + gatherYear;// 利润分配表页面链接
+		}
+		logger.info("采集地址：" + urlLoad);
+		@SuppressWarnings("resource")
+		HttpClient httpClient = new DefaultHttpClient();
+		HttpGet get = null;
+		HttpResponse response = null;
+		HttpEntity entity = null;
+
+		try {
+			get = new HttpGet(urlLoad);
+			response = httpClient.execute(get);
+			entity = response.getEntity(); // 获取响应实体
+			if (entity != null) {
+				responseContent = EntityUtils.toString(entity, "gbk");
+				if (responseContent.contains("暂无该公司")) {
+					logger.info("页面返回NULL没有找到！!code=" + code + ",url=" + urlLoad);
+					return null;
+				}
+				 financeTemp = QQPageParser.parser(finance,responseContent, code,name, reportType, reportDate,isBank);
+				 if(financeTemp!=null){
+					 finance = financeTemp;
+					 return finance;
+				 }
+			} else {
+				errorlogger.error("URL返回的内容为null：" + urlLoad);
+				return null;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+}

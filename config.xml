@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?> 
+ 
+<hdy-configuration>  
+     
+     <dbconfig><!-- 数据库连接配置-->
+	      <driver>com.mysql.jdbc.Driver</driver>  
+	      <username>root</username>  
+	      <password>yysoft601</password>
+	      <dbhost>192.168.23.85</dbhost>  
+	      <dcdb>valuestock</dcdb><!--数据计算中心数据库--> 
+	      <webdb>stockwinweb</webdb><!--网站端数据库,将计算结果发布到网站--> 
+	      <unicode>utf-8</unicode><!--数据库连接编码--> 
+	      <initConnectionsSize>10</initConnectionsSize><!-- 连接池的初始大小--> 
+	      <increConnectionsSize>5</increConnectionsSize><!-- 连接池自动增加的大小--> 
+	      <maxConnections>5000</maxConnections><!-- 连接池的最大大小--> 
+     </dbconfig> 
+     
+     <config> <!--配置--> 
+      <icolumnname>sectionPingAn</icolumnname><!--计算所用行业分类的属性名，对应stock_company表中的对应行业名称字段名 -->   
+      <icolumncode>sectionPingAnCode</icolumncode><!--计算所用行业分类的属性名，对应stock_company表中的对应行业代码字段名 -->
+      <historyYear>3</historyYear><!-- 最多采集历史年数,若为0则只采集当前年度 -->  
+      <startTime>9:40:00</startTime><!-- 开始采集的时间，格式HH:mm:ss --> 
+      <timeDelay>12</timeDelay><!-- 采集延时的时间，单位小时 -->  
+      <filterWord>预告,预增,英文版,预计,简报,预亏,预减,预盈,快报,保荐工作,跟踪报告,监事会,提示性公告</filterWord><!--金融街年报季报专栏页面标题过滤词,多个词间用逗号开-->  
+     </config>
+       	
+</hdy-configuration>
+ 
+ 
